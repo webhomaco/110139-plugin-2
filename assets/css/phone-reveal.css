@@ -1,0 +1,235 @@
+/* Phone Reveal Section */
+.wh-phone-reveal-section {
+    margin: 15px 0;
+}
+
+.wh-phone-reveal-section .phone-number {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.wh-phone-reveal-section .phone-label {
+    font-weight: 600;
+    color: #333;
+}
+
+.wh-reveal-phone-btn {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.wh-reveal-phone-btn:hover:not(:disabled) {
+    background: #2980b9;
+}
+
+.wh-reveal-phone-btn:disabled {
+    background: #95a5a6;
+    cursor: not-allowed;
+}
+
+.wh-no-tokens {
+    color: #e74c3c;
+    font-size: 12px;
+    display: block;
+    margin-top: 5px;
+}
+
+.phone-number-link {
+    color: #3498db;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.phone-number-link:hover {
+    color: #2980b9;
+}
+
+/* Token Dashboard */
+.wh-token-dashboard {
+    max-width: 1000px;
+    margin: 20px auto;
+}
+
+.wh-token-balance-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.wh-token-balance-card h3 {
+    margin: 0 0 20px 0;
+    font-size: 18px;
+    opacity: 0.9;
+}
+
+.wh-balance-amount {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.wh-token-count {
+    font-size: 48px;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.wh-token-label {
+    font-size: 14px;
+    opacity: 0.9;
+    margin-top: 5px;
+}
+
+.wh-balance-breakdown {
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.wh-balance-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.wh-balance-item .wh-label {
+    opacity: 0.9;
+}
+
+.wh-balance-item .wh-value {
+    font-weight: 600;
+    font-size: 18px;
+}
+
+.wh-balance-item small {
+    flex-basis: 100%;
+    margin-top: 4px;
+    font-size: 12px;
+}
+
+.wh-expired {
+    color: #ffd1d1;
+}
+
+.wh-expiry {
+    opacity: 0.8;
+}
+
+/* Token Logs */
+.wh-token-logs {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.wh-token-logs h3 {
+    margin: 0 0 20px 0;
+    font-size: 20px;
+    color: #333;
+}
+
+.wh-logs-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.wh-logs-table th {
+    text-align: left;
+    padding: 12px;
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #555;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.wh-logs-table td {
+    padding: 12px;
+    border-bottom: 1px solid #f0f0f0;
+    color: #666;
+}
+
+.wh-logs-table tr:last-child td {
+    border-bottom: none;
+}
+
+.wh-action-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.wh-action-add {
+    background: #d4edda;
+    color: #155724;
+}
+
+.wh-action-deduct {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.wh-amount-positive {
+    color: #27ae60;
+    font-weight: 600;
+}
+
+.wh-amount-negative {
+    color: #e74c3c;
+    font-weight: 600;
+}
+
+.wh-no-logs {
+    text-align: center;
+    color: #999;
+    padding: 40px 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .wh-token-balance-card {
+        padding: 20px;
+    }
+
+    .wh-token-count {
+        font-size: 36px;
+    }
+
+    .wh-logs-table {
+        font-size: 14px;
+    }
+
+    .wh-logs-table th,
+    .wh-logs-table td {
+        padding: 8px;
+    }
+
+    .wh-logs-table th:first-child,
+    .wh-logs-table td:first-child {
+        display: none;
+    }
+}

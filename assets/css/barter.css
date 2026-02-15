@@ -1,0 +1,188 @@
+/* Webhoma Barter System Styles */
+
+/* Form Section */
+.wh-barter-section {
+    margin-top: 30px;
+}
+
+.wh-barter-tags-wrap {
+    position: relative;
+}
+
+.wh-barter-tags-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+    min-height: 40px;
+}
+
+.wh-barter-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #f0f0f0;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+}
+
+.wh-remove-tag {
+    cursor: pointer;
+    color: #666;
+    font-size: 18px;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.wh-remove-tag:hover {
+    color: #e74c3c;
+}
+
+/* Tag Suggestions */
+.wh-tag-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+    margin-top: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.wh-tag-suggestions.active {
+    display: block;
+}
+
+.wh-tag-suggestion-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.wh-tag-suggestion-item:hover {
+    background: #f5f5f5;
+}
+
+/* Barter Info on Single Listing */
+.wh-barter-info {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.wh-barter-info .main-title {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.wh-barter-info .main-title i {
+    margin-right: 8px;
+    color: #3498db;
+}
+
+.wh-barter-description {
+    margin-bottom: 15px;
+}
+
+.wh-barter-description strong {
+    display: block;
+    margin-bottom: 8px;
+    color: #555;
+}
+
+.wh-barter-description p {
+    margin: 0;
+    line-height: 1.6;
+}
+
+.wh-barter-tags-display strong {
+    display: block;
+    margin-bottom: 8px;
+    color: #555;
+}
+
+.wh-tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.wh-tag-badge {
+    display: inline-block;
+    background: #3498db;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* Barter Badge on Listing Cards */
+.wh-barter-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #27ae60;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    z-index: 5;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Search Filter */
+.wh-barter-search-filter {
+    margin-top: 15px;
+}
+
+.wh-selected-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.wh-selected-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #3498db;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+}
+
+.wh-remove-search-tag {
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    transition: opacity 0.2s;
+}
+
+.wh-remove-search-tag:hover {
+    opacity: 0.7;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .wh-barter-info {
+        padding: 15px;
+    }
+    
+    .wh-barter-badge {
+        font-size: 10px;
+        padding: 3px 8px;
+    }
+}
