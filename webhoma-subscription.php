@@ -1,14 +1,17 @@
 <?php
-/*
-Plugin Name: Subscription
-Plugin URI: https://webhoma.ir
-Description: Subscription
-Version: 1.0.0
-Requires at least: 6.9
-Requires PHP: 8.1
-Author: Webhoma
-Author URI: https://webhoma.ir
-*/
+
+/**
+ * @package 	      Classima
+ * Plugin Name:       Classima VIP Plugin
+ * Plugin URI:        
+ * Description:       Classima VIP Plugin
+ * Version:           1.01
+ * Author:            Classima
+ * Author URI:	      
+ * Text Domain:       Classima-VIP-Plugin
+ * License:           GPL v2 or later
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+ */
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
