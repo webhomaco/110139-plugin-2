@@ -136,6 +136,10 @@
     opacity: 0.8;
 }
 
+.classified-seller-info .rtin-phone {
+    display: none !important;
+}
+
 /* Token Logs */
 .wh-token-logs {
     background: white;

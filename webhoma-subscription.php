@@ -81,8 +81,7 @@ function wh_sub_init() {
     add_action( 'rtcl_after_listing_loop_thumbnail', 'wh_sub_add_badge' );
 
     // Override RTCL phone display with token system
-    remove_action( 'rtcl_listing_seller_information', array( 'Rtcl\Controllers\Hooks\TemplateHooks', 'seller_phone_whatsapp_number' ), 20 );
-    add_action( 'rtcl_listing_seller_information', 'wh_sub_custom_phone_display', 20 );
+    add_action( 'rtcl_single_listing_content_end', 'wh_sub_custom_phone_display', 5 );
 
     // Register shortcode for token dashboard
     add_shortcode( 'wh_token_dashboard', 'wh_sub_dashboard_shortcode' );
