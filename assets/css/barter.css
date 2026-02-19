@@ -224,6 +224,7 @@
     font-family: "Font Awesome 5 Free";
     line-height: 58px;
     font-weight: 600;
+    flex-shrink: 0;
 }
 
 @media all and (max-width: 575.98px) {
@@ -262,13 +263,30 @@
     box-shadow: none;
 }
 
-/* Selected tags - below input */
+/* Selected tags row - below all inputs */
+.wh-selected-tags-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    background: #f9f9f9;
+    border-top: 1px solid #e1e1e1;
+    width: 100%;
+    clear: both;
+}
+
+.wh-selected-tags-label {
+    font-size: 14px;
+    color: #666;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
 .wh-selected-tags {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    margin-top: 8px;
-    padding: 0 5px;
+    align-items: center;
 }
 
 .wh-selected-tag {

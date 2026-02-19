@@ -36,13 +36,34 @@ jQuery(document).ready(function($) {
                     'placeholder="Trade Tags..." autocomplete="off" />' +
                     '</div>' +
                     '<div id="' + suggestionsId + '" class="wh-tag-suggestions"></div>' +
-                    '<div class="wh-selected-tags">' + selectedTagsHTML + '</div>' +
                     '</div>' +
                     '</div>' +
                     '</div>';
 
+                // Create hidden container for form inputs (inside form, invisible)
+                var hiddenInputsContainer = '<div class="wh-barter-hidden-inputs" style="display:none;"></div>';
+
+                // Create selected tags row (below all inputs, for display only)
+                var selectedTagsRow = '<div class="wh-selected-tags-row" style="' + (selectedTags.length > 0 ? '' : 'display:none;') + '">' +
+                    '<span class="wh-selected-tags-label">Selected tags:</span>' +
+                    '<div class="wh-selected-tags">' + selectedTagsHTML + '</div>' +
+                    '</div>';
+
                 // Insert before search button
                 searchButton.before(barterFieldHTML);
+                searchButton.before(hiddenInputsContainer);
+
+                // Insert selected tags row after the entire form (as a sibling, not inside)
+                searchForm.after(selectedTagsRow);
+
+                // Copy initial tags to hidden container
+                if (selectedTags.length > 0) {
+                    selectedTags.forEach(function(tag) {
+                        searchForm.find('.wh-barter-hidden-inputs').append(
+                            '<input type="hidden" name="barter_tags[]" value="' + escapeHtml(tag) + '"/>'
+                        );
+                    });
+                }
             }
         });
     }
@@ -190,24 +211,30 @@ jQuery(document).ready(function($) {
         tag = tag.trim();
         if (!tag) return;
 
-        // Find the wrapper containing the clicked suggestion item
+        // Find the wrapper and form containing the clicked suggestion item
         var $wrapper = $clickedItem.closest('.wh-barter-input-wrapper');
-        var $selectedTagsContainer = $wrapper.find('.wh-selected-tags');
+        var $form = $clickedItem.closest('.classima-listing-search-form');
+        var $selectedTagsRow = $form.next('.wh-selected-tags-row');
+        var $selectedTagsContainer = $selectedTagsRow.find('.wh-selected-tags');
         var $input = $wrapper.find('.wh-barter-search-input');
         var $suggestions = $wrapper.find('.wh-tag-suggestions');
 
-        // Check if already added in this specific form
-        if ($selectedTagsContainer.find('input[value="' + tag + '"]').length > 0) {
+        // Check if already added in this specific form (check hidden inputs)
+        if ($form.find('.wh-barter-hidden-inputs input[value="' + tag + '"]').length > 0) {
             return;
         }
 
         var $tagEl = $('<span class="wh-selected-tag">' +
             escapeHtml(tag) +
             '<span class="wh-remove-search-tag" data-tag="' + escapeHtml(tag) + '">×</span>' +
-            '<input type="hidden" name="barter_tags[]" value="' + escapeHtml(tag) + '"/>' +
             '</span>');
 
+        // Add hidden input to the form (for submission)
+        var $hiddenInput = $('<input type="hidden" name="barter_tags[]" value="' + escapeHtml(tag) + '"/>');
+        $form.find('.wh-barter-hidden-inputs').append($hiddenInput);
+
         $selectedTagsContainer.append($tagEl);
+        $selectedTagsRow.show(); // Show the row when tags are added
         $input.val('');
         $suggestions.removeClass('active').empty();
 
@@ -257,9 +284,9 @@ jQuery(document).ready(function($) {
                         $searchSuggestions.empty();
 
                         // Get already selected tags in this form
-                        var $wrapper = $input.closest('.wh-barter-input-wrapper');
+                        var $form = $input.closest('.classima-listing-search-form');
                         var selectedTags = [];
-                        $wrapper.find('.wh-selected-tags input[type="hidden"]').each(function() {
+                        $form.find('.wh-barter-hidden-inputs input[type="hidden"]').each(function() {
                             selectedTags.push($(this).val());
                         });
 
@@ -298,7 +325,20 @@ jQuery(document).ready(function($) {
 
     // Remove search tag (using event delegation)
     $(document).on('click', '.wh-remove-search-tag', function() {
-        $(this).closest('.wh-selected-tag').remove();
+        var $tag = $(this).closest('.wh-selected-tag');
+        var $row = $(this).closest('.wh-selected-tags-row');
+        var tagValue = $(this).data('tag');
+
+        // Find and remove the corresponding hidden input from the form
+        var $form = $row.prev('.classima-listing-search-form');
+        $form.find('.wh-barter-hidden-inputs input[value="' + tagValue + '"]').remove();
+
+        $tag.remove();
+
+        // Hide the row if no tags remain
+        if ($row.find('.wh-selected-tag').length === 0) {
+            $row.hide();
+        }
     });
 
     // Close search suggestions when clicking outside
