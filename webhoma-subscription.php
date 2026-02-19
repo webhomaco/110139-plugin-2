@@ -5,7 +5,7 @@
  * Plugin Name:       Classima VIP Plugin
  * Plugin URI:        
  * Description:       Classima VIP Plugin
- * Version:           1.06
+ * Version:           1.07
  * Author:            Classima
  * Author URI:	      
  * Text Domain:       Classima-VIP-Plugin
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants
-define( 'WH_SUB_VERSION', '1.0.6' );
+define( 'WH_SUB_VERSION', '1.0.7' );
 define( 'WH_SUB_FILE', __FILE__ );
 define( 'WH_SUB_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WH_SUB_URL', plugin_dir_url( __FILE__ ) );
