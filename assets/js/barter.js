@@ -32,11 +32,11 @@ jQuery(document).ready(function($) {
                     '<div class="form-group wh-barter-search-filter">' +
                     '<div class="wh-barter-input-wrapper">' +
                     '<div class="rtcl-search-input-button rtin-barter">' +
-                    '<div class="wh-selected-tags">' + selectedTagsHTML + '</div>' +
                     '<input type="text" id="' + inputId + '" class="rtcl-autocomplete wh-barter-search-input" ' +
                     'placeholder="Trade Tags..." autocomplete="off" />' +
                     '</div>' +
                     '<div id="' + suggestionsId + '" class="wh-tag-suggestions"></div>' +
+                    '<div class="wh-selected-tags">' + selectedTagsHTML + '</div>' +
                     '</div>' +
                     '</div>' +
                     '</div>';
@@ -186,13 +186,17 @@ jQuery(document).ready(function($) {
     // ========== SEARCH FORM - Tag Filter ==========
 
     // Add search tag (works with dynamically created elements)
-    function addSearchTag(tag) {
+    function addSearchTag(tag, $clickedItem) {
         tag = tag.trim();
         if (!tag) return;
 
-        var $selectedTagsContainer = $('.wh-selected-tags');
+        // Find the wrapper containing the clicked suggestion item
+        var $wrapper = $clickedItem.closest('.wh-barter-input-wrapper');
+        var $selectedTagsContainer = $wrapper.find('.wh-selected-tags');
+        var $input = $wrapper.find('.wh-barter-search-input');
+        var $suggestions = $wrapper.find('.wh-tag-suggestions');
 
-        // Check if already added
+        // Check if already added in this specific form
         if ($selectedTagsContainer.find('input[value="' + tag + '"]').length > 0) {
             return;
         }
@@ -204,8 +208,13 @@ jQuery(document).ready(function($) {
             '</span>');
 
         $selectedTagsContainer.append($tagEl);
-        $('#wh-barter-search-input').val('');
-        $('#wh-barter-search-suggestions').removeClass('active').empty();
+        $input.val('');
+        $suggestions.removeClass('active').empty();
+
+        // Refocus input after a tiny delay to ensure it works
+        setTimeout(function() {
+            $input.focus();
+        }, 50);
     }
 
     // Search input - Prevent Enter key from submitting form
@@ -246,14 +255,36 @@ jQuery(document).ready(function($) {
                 success: function(response) {
                     if (response.success && response.data.tags.length > 0) {
                         $searchSuggestions.empty();
+
+                        // Get already selected tags in this form
+                        var $wrapper = $input.closest('.wh-barter-input-wrapper');
+                        var selectedTags = [];
+                        $wrapper.find('.wh-selected-tags input[type="hidden"]').each(function() {
+                            selectedTags.push($(this).val());
+                        });
+
+                        var hasItems = false;
                         response.data.tags.forEach(function(tag) {
+                            // Skip if already selected
+                            if (selectedTags.indexOf(tag) !== -1) {
+                                return;
+                            }
+
+                            hasItems = true;
                             var $item = $('<div class="wh-tag-suggestion-item">' + escapeHtml(tag) + '</div>');
-                            $item.on('click', function() {
-                                addSearchTag(tag);
+                            $item.on('click', function(e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                addSearchTag(tag, $(this));
                             });
                             $searchSuggestions.append($item);
                         });
-                        $searchSuggestions.addClass('active');
+
+                        if (hasItems) {
+                            $searchSuggestions.addClass('active');
+                        } else {
+                            $searchSuggestions.removeClass('active').empty();
+                        }
                     } else {
                         $searchSuggestions.removeClass('active').empty();
                     }
@@ -273,7 +304,7 @@ jQuery(document).ready(function($) {
     // Close search suggestions when clicking outside
     $(document).on('click', function(e) {
         if (!$(e.target).closest('.wh-barter-search-filter').length) {
-            $('#wh-barter-search-suggestions').removeClass('active');
+            $('.wh-tag-suggestions').removeClass('active');
         }
     });
     

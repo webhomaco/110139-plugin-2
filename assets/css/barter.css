@@ -249,8 +249,6 @@
     height: 58px;
     color: #646464;
     background: transparent;
-    width: auto;
-    flex: 1;
 }
 
 @media all and (max-width: 575.98px) {
@@ -259,24 +257,25 @@
     }
 }
 
-.classima-listing-search-form #wh-barter-search-input:focus {
+.classima-listing-search-form .wh-barter-search-input:focus {
     outline: none;
     box-shadow: none;
 }
 
-/* Selected tags - inline with input */
+/* Selected tags - below input */
 .wh-selected-tags {
-    display: inline-flex;
+    display: flex;
     flex-wrap: wrap;
-    gap: 4px;
-    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    padding: 0 5px;
 }
 
 .wh-selected-tag {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    background: #f0f0f0;
+    background: #ddd;
     color: #666;
     padding: 3px 8px;
     border-radius: 3px;
