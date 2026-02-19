@@ -172,44 +172,39 @@ function wh_sub_get_data( $listing_id ) {
 
 /**
  * Display barter info on single listing page
+ * Uses frontend template design from trade-description.html
  */
 function wh_sub_display_info( $listing ) {
     $barter_data = wh_sub_get_data( $listing->get_id() );
-    
+
     if ( ! $barter_data || ( empty( $barter_data->description ) && empty( $barter_data->tags ) ) ) {
         return;
     }
-    
+
     $tags = $barter_data->tags ? json_decode( $barter_data->tags, true ) : array();
     ?>
     <div class="content-block-gap"></div>
-    <div class="site-content-block wh-barter-info">
-        <div class="main-title-block">
-            <h3 class="main-title">
-                <i class="fa fa-exchange"></i>
-                <?php esc_html_e( 'Trade Option', 'webhoma-barter' ); ?>
-            </h3>
-        </div>
-        <div class="main-content">
+    <section class="trade-option-area mt-5">
+        <div class="trade-option-description tod">
+            <h2><?php esc_html_e( 'Trade Description', 'webhoma-barter' ); ?></h2>
+
             <?php if ( $barter_data->description ) : ?>
-                <div class="wh-barter-description">
-                    <strong><?php esc_html_e( 'Trade Description:', 'webhoma-barter' ); ?></strong>
-                    <p><?php echo esc_html( $barter_data->description ); ?></p>
-                </div>
+                <p><?php echo esc_html( $barter_data->description ); ?></p>
             <?php endif; ?>
-            
+
             <?php if ( ! empty( $tags ) ) : ?>
-                <div class="wh-barter-tags-display">
-                    <strong><?php esc_html_e( 'Looking for:', 'webhoma-barter' ); ?></strong>
-                    <div class="wh-tag-list">
-                        <?php foreach ( $tags as $tag ) : ?>
-                            <span class="wh-tag-badge"><?php echo esc_html( $tag ); ?></span>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
+                <ul id="tags-ul">
+                    <?php foreach ( $tags as $tag ) : ?>
+                        <li>
+                            <a href="#">
+                                <?php echo esc_html( $tag ); ?>
+                            </a>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
             <?php endif; ?>
         </div>
-    </div>
+    </section>
     <?php
 }
 
