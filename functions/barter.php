@@ -96,15 +96,15 @@ function wh_sub_save_data( $post_id, $args ) {
         return;
     }
     
-    $description = isset( $_POST['wh_barter_description'] ) ? sanitize_textarea_field( $_POST['wh_barter_description'] ) : '';
-    $tags = isset( $_POST['wh_barter_tags'] ) ? $_POST['wh_barter_tags'] : '';
+    $description = isset( $_POST['wh_barter_description'] ) ? sanitize_textarea_field( wp_unslash( $_POST['wh_barter_description'] ) ) : '';
+    $tags = isset( $_POST['wh_barter_tags'] ) ? wp_unslash( $_POST['wh_barter_tags'] ) : '';
     
     // Validate and sanitize tags
     if ( $tags ) {
-        $tags_array = json_decode( stripslashes( $tags ), true );
+        $tags_array = json_decode( $tags, true );
         if ( is_array( $tags_array ) ) {
             $tags_array = array_map( 'sanitize_text_field', $tags_array );
-            $tags = json_encode( $tags_array );
+            $tags = json_encode( $tags_array, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES );
         } else {
             $tags = '';
         }
