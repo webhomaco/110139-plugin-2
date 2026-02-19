@@ -40,33 +40,82 @@
 
 /* Tag Suggestions */
 .wh-tag-suggestions {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    max-height: 200px;
-    overflow-y: auto;
-    z-index: 1000;
-    display: none;
-    margin-top: 4px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    background: white !important;
+    border: 1px solid #ddd !important;
+    border-radius: 4px !important;
+    max-height: 200px !important;
+    min-height: 0 !important;
+    height: auto !important;
+    overflow-y: auto !important;
+    z-index: 99999 !important;
+    display: none !important;
+    margin-top: 4px !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    box-sizing: border-box !important;
 }
 
 .wh-tag-suggestions.active {
-    display: block;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    height: auto !important;
+}
+
+/* Wrapper for input and suggestions */
+.wh-barter-input-wrapper {
+    position: relative !important;
+    overflow: visible !important;
+}
+
+/* Ensure parent wrappers allow absolute positioning */
+.classima-listing-search-form .rtin-barter-space {
+    overflow: visible !important;
+}
+
+.classima-listing-search-form .wh-barter-search-filter {
+    overflow: visible !important;
+}
+
+.classima-listing-search-form .rtin-barter {
+    position: relative !important;
+    overflow: visible !important;
+}
+
+.classima-listing-search-form .wh-barter-search-filter .rtcl-search-input-button {
+    overflow: visible !important;
 }
 
 .wh-tag-suggestion-item {
-    padding: 10px 15px;
-    cursor: pointer;
-    transition: background 0.2s;
+    padding: 10px 15px !important;
+    cursor: pointer !important;
+    transition: background 0.2s !important;
+    background: white !important;
+    color: #333 !important;
+    display: block !important;
+    min-height: 40px !important;
+    height: auto !important;
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+    border-bottom: 1px solid #f0f0f0 !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
 }
 
 .wh-tag-suggestion-item:hover {
-    background: #dadada;
+    background: #dadada !important;
+}
+
+.wh-tag-suggestion-item:last-child {
+    border-bottom: none !important;
 }
 
 .wh-tag-loading {
@@ -156,33 +205,96 @@
     margin-top: 15px;
 }
 
+/* Banner Search Form Styling */
+.classima-listing-search-form .rtin-barter-space {
+    flex: 1;
+}
+
+.classima-listing-search-form .wh-barter-search-filter {
+    margin: 0;
+}
+
+.classima-listing-search-form .wh-barter-search-filter .rtcl-search-input-button {
+    position: relative;
+}
+
+/* Add icon before barter input */
+.classima-listing-search-form .rtin-barter:before {
+    content: "\f02b";
+    font-family: "Font Awesome 5 Free";
+    line-height: 58px;
+    font-weight: 600;
+}
+
+@media all and (max-width: 575.98px) {
+    .classima-listing-search-form .rtin-barter:before {
+        line-height: 48px;
+    }
+}
+
+.classima-listing-search-form .rtin-barter:after {
+    content: none;
+}
+
+@media all and (max-width: 575.98px) {
+    .classima-listing-search-form .rtin-barter {
+        margin-bottom: 20px;
+    }
+}
+
+.classima-listing-search-form .rtin-barter input {
+    border: none;
+    outline: 0;
+    padding: 0 0 0 10px;
+    height: 58px;
+    color: #646464;
+    background: transparent;
+    width: auto;
+    flex: 1;
+}
+
+@media all and (max-width: 575.98px) {
+    .classima-listing-search-form .rtin-barter input {
+        height: 48px;
+    }
+}
+
+.classima-listing-search-form #wh-barter-search-input:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+/* Selected tags - inline with input */
 .wh-selected-tags {
-    display: flex;
+    display: inline-flex;
     flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 10px;
+    gap: 4px;
+    align-items: center;
 }
 
 .wh-selected-tag {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    background: #3498db;
-    color: white;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 14px;
+    gap: 4px;
+    background: #f0f0f0;
+    color: #666;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    line-height: 1.4;
 }
 
 .wh-remove-search-tag {
     cursor: pointer;
-    font-size: 18px;
+    font-size: 14px;
     line-height: 1;
-    transition: opacity 0.2s;
+    color: #999;
+    margin-left: 2px;
+    transition: color 0.2s;
 }
 
 .wh-remove-search-tag:hover {
-    opacity: 0.7;
+    color: #e74c3c;
 }
 
 /* Responsive */

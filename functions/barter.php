@@ -241,7 +241,21 @@ function wh_sub_search_filter() {
 /**
  * Filter listings by barter tags
  */
-function wh_sub_filter_query( $args ) {
+function wh_sub_filter_query( $query ) {
+    // Only modify main query for listings on frontend
+    if ( is_admin() || ! $query->is_main_query() ) {
+        return;
+    }
+
+    // Check if this is a listing query (post type might not be set yet)
+    $post_type = $query->get( 'post_type' );
+    $is_listing_archive = is_post_type_archive( rtcl()->post_type );
+    $is_listing_taxonomy = is_tax( 'rtcl_category' ) || is_tax( 'rtcl_location' );
+
+    if ( ! $is_listing_archive && ! $is_listing_taxonomy && $post_type !== rtcl()->post_type ) {
+        return;
+    }
+
     if ( isset( $_GET['barter_tags'] ) && ! empty( $_GET['barter_tags'] ) ) {
         global $wpdb;
 
@@ -263,24 +277,24 @@ function wh_sub_filter_query( $args ) {
             $listing_ids = $wpdb->get_col( "SELECT listing_id FROM $table_name WHERE $where" );
 
             if ( ! empty( $listing_ids ) ) {
-                // If post__in already exists, intersect with our results
-                if ( isset( $args['post__in'] ) && ! empty( $args['post__in'] ) ) {
-                    $args['post__in'] = array_intersect( $args['post__in'], $listing_ids );
-                    // If no intersection, return empty result
-                    if ( empty( $args['post__in'] ) ) {
-                        $args['post__in'] = array( 0 );
+                // Get existing post__in to intersect
+                $existing_post__in = $query->get( 'post__in' );
+
+                if ( ! empty( $existing_post__in ) && is_array( $existing_post__in ) ) {
+                    $listing_ids = array_intersect( $existing_post__in, $listing_ids );
+                    if ( empty( $listing_ids ) ) {
+                        $listing_ids = array( 0 );
                     }
-                } else {
-                    $args['post__in'] = $listing_ids;
                 }
+
+                // Set the filtered IDs
+                $query->set( 'post__in', $listing_ids );
             } else {
                 // No matches, return empty result
-                $args['post__in'] = array( 0 );
+                $query->set( 'post__in', array( 0 ) );
             }
         }
     }
-
-    return $args;
 }
 
 /**

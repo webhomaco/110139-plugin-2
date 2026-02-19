@@ -5,7 +5,7 @@
  * Plugin Name:       Classima VIP Plugin
  * Plugin URI:        
  * Description:       Classima VIP Plugin
- * Version:           1.01
+ * Version:           1.06
  * Author:            Classima
  * Author URI:	      
  * Text Domain:       Classima-VIP-Plugin
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants
-define( 'WH_SUB_VERSION', '1.0.0' );
+define( 'WH_SUB_VERSION', '1.0.6' );
 define( 'WH_SUB_FILE', __FILE__ );
 define( 'WH_SUB_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WH_SUB_URL', plugin_dir_url( __FILE__ ) );
@@ -74,11 +74,12 @@ function wh_sub_init() {
     // Display barter info on single listing
     add_action( 'rtcl_single_listing_content_end', 'wh_sub_display_info', 15 );
     
-    // Add barter filter to search
-    add_action( 'rtcl_widget_search_form', 'wh_sub_search_filter', 20 );
-    
-    // Modify listing query for barter filter
-    add_filter( 'rtcl_listing_query_args', 'wh_sub_filter_query' );
+    // Add barter filter to search (both inline and vertical layouts)
+    add_action( 'rtcl_widget_search_inline_form', 'wh_sub_search_filter', 20 );
+    add_action( 'rtcl_widget_search_vertical_form', 'wh_sub_search_filter', 20 );
+
+    // Modify listing query for barter filter (priority 50 to run after RTCL filters)
+    add_action( 'pre_get_posts', 'wh_sub_filter_query', 50 );
     
     // Add barter badge to listing cards
     add_action( 'rtcl_after_listing_loop_thumbnail', 'wh_sub_add_badge' );
