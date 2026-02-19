@@ -113,6 +113,7 @@ function wh_sub_enqueue_assets() {
     $is_rtcl_page = is_singular( 'rtcl_listing' )
                     || is_post_type_archive( 'rtcl_listing' )
                     || is_tax( 'rtcl_category' )
+                    || is_tax( 'rtcl_location' )
                     || ( is_a( $post, 'WP_Post' ) && has_shortcode( $post->post_content, 'rtcl_listing_form' ) );
 
     // Check if token dashboard shortcode is present

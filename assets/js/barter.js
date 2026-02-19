@@ -73,14 +73,17 @@ jQuery(document).ready(function($) {
     var searchTimeout;
     $tagInput.on('input', function() {
         var search = $(this).val().trim();
-        
+
         clearTimeout(searchTimeout);
-        
+
         if (search.length < 2) {
             $suggestions.removeClass('active').empty();
             return;
         }
-        
+
+        // Show loading indicator
+        $suggestions.html('<div class="wh-tag-loading">Loading...</div>').addClass('active');
+
         searchTimeout = setTimeout(function() {
             $.ajax({
                 url: whBarter.ajax_url,
@@ -111,6 +114,9 @@ jQuery(document).ready(function($) {
                     } else {
                         $suggestions.removeClass('active').empty();
                     }
+                },
+                error: function() {
+                    $suggestions.removeClass('active').empty();
                 }
             });
         }, 300);
@@ -172,14 +178,17 @@ jQuery(document).ready(function($) {
     var searchSearchTimeout;
     $searchInput.on('input', function() {
         var search = $(this).val().trim();
-        
+
         clearTimeout(searchSearchTimeout);
-        
+
         if (search.length < 2) {
             $searchSuggestions.removeClass('active').empty();
             return;
         }
-        
+
+        // Show loading indicator
+        $searchSuggestions.html('<div class="wh-tag-loading">Loading...</div>').addClass('active');
+
         searchSearchTimeout = setTimeout(function() {
             $.ajax({
                 url: whBarter.ajax_url,
@@ -203,6 +212,9 @@ jQuery(document).ready(function($) {
                     } else {
                         $searchSuggestions.removeClass('active').empty();
                     }
+                },
+                error: function() {
+                    $searchSuggestions.removeClass('active').empty();
                 }
             });
         }, 300);

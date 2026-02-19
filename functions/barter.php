@@ -244,33 +244,42 @@ function wh_sub_search_filter() {
 function wh_sub_filter_query( $args ) {
     if ( isset( $_GET['barter_tags'] ) && ! empty( $_GET['barter_tags'] ) ) {
         global $wpdb;
-        
+
         $tags = (array) $_GET['barter_tags'];
         $tags = array_map( 'sanitize_text_field', $tags );
-        
+
         if ( ! empty( $tags ) ) {
             $table_name = $wpdb->prefix . 'barter_data';
-            
+
             // Build LIKE conditions for each tag
             $like_conditions = array();
             foreach ( $tags as $tag ) {
                 $like_conditions[] = $wpdb->prepare( "tags LIKE %s", '%' . $wpdb->esc_like( $tag ) . '%' );
             }
-            
+
             $where = implode( ' OR ', $like_conditions );
-            
+
             // Get listing IDs that match
             $listing_ids = $wpdb->get_col( "SELECT listing_id FROM $table_name WHERE $where" );
-            
+
             if ( ! empty( $listing_ids ) ) {
-                $args['post__in'] = $listing_ids;
+                // If post__in already exists, intersect with our results
+                if ( isset( $args['post__in'] ) && ! empty( $args['post__in'] ) ) {
+                    $args['post__in'] = array_intersect( $args['post__in'], $listing_ids );
+                    // If no intersection, return empty result
+                    if ( empty( $args['post__in'] ) ) {
+                        $args['post__in'] = array( 0 );
+                    }
+                } else {
+                    $args['post__in'] = $listing_ids;
+                }
             } else {
                 // No matches, return empty result
                 $args['post__in'] = array( 0 );
             }
         }
     }
-    
+
     return $args;
 }
 
