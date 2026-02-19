@@ -78,8 +78,8 @@ function wh_sub_init() {
     add_action( 'rtcl_widget_search_inline_form', 'wh_sub_search_filter', 20 );
     add_action( 'rtcl_widget_search_vertical_form', 'wh_sub_search_filter', 20 );
 
-    // Modify listing query for barter filter (priority 50 to run after RTCL filters)
-    add_action( 'pre_get_posts', 'wh_sub_filter_query', 50 );
+    // Modify listing query for barter filter (priority 999 to run after all RTCL filters)
+    add_action( 'pre_get_posts', 'wh_sub_filter_query', 999 );
     
     // Add barter badge to listing cards
     add_action( 'rtcl_after_listing_loop_thumbnail', 'wh_sub_add_badge' );

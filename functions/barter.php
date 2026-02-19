@@ -194,9 +194,13 @@ function wh_sub_display_info( $listing ) {
 
             <?php if ( ! empty( $tags ) ) : ?>
                 <ul id="tags-ul">
-                    <?php foreach ( $tags as $tag ) : ?>
+                    <?php
+                    $listings_url = get_post_type_archive_link( rtcl()->post_type );
+                    foreach ( $tags as $tag ) :
+                        $search_url = add_query_arg( 'barter_tags[]', urlencode( $tag ), $listings_url );
+                    ?>
                         <li>
-                            <a href="#">
+                            <a href="<?php echo esc_url( $search_url ); ?>">
                                 <?php echo esc_html( $tag ); ?>
                             </a>
                         </li>
@@ -281,17 +285,23 @@ function wh_sub_filter_query( $query ) {
                 $existing_post__in = $query->get( 'post__in' );
 
                 if ( ! empty( $existing_post__in ) && is_array( $existing_post__in ) ) {
+                    // Intersect with existing filters
                     $listing_ids = array_intersect( $existing_post__in, $listing_ids );
                     if ( empty( $listing_ids ) ) {
+                        // No intersection means no results
                         $listing_ids = array( 0 );
                     }
                 }
 
-                // Set the filtered IDs
+                // FORCE the filtered IDs - this must be respected
                 $query->set( 'post__in', $listing_ids );
+
+                // Ensure suppress_filters is false so our filter works
+                $query->set( 'suppress_filters', false );
             } else {
                 // No matches, return empty result
                 $query->set( 'post__in', array( 0 ) );
+                $query->set( 'suppress_filters', false );
             }
         }
     }

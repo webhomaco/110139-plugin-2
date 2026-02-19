@@ -224,10 +224,6 @@ jQuery(document).ready(function($) {
         // Find the suggestions div that's a sibling of this input's wrapper
         var $searchSuggestions = $input.closest('.wh-barter-input-wrapper').find('.wh-tag-suggestions');
 
-        console.log('Input event fired, search value:', search);
-        console.log('Found suggestions element:', $searchSuggestions.length, 'element(s)');
-        console.log('Suggestions element:', $searchSuggestions[0]);
-
         clearTimeout(searchSearchTimeout);
 
         if (search.length < 2) {
@@ -248,12 +244,9 @@ jQuery(document).ready(function($) {
                     search: search
                 },
                 success: function(response) {
-                    console.log('Barter tags AJAX response:', response);
                     if (response.success && response.data.tags.length > 0) {
-                        console.log('Tags received:', response.data.tags);
                         $searchSuggestions.empty();
                         response.data.tags.forEach(function(tag) {
-                            console.log('Creating item for tag:', tag);
                             var $item = $('<div class="wh-tag-suggestion-item">' + escapeHtml(tag) + '</div>');
                             $item.on('click', function() {
                                 addSearchTag(tag);
@@ -261,24 +254,7 @@ jQuery(document).ready(function($) {
                             $searchSuggestions.append($item);
                         });
                         $searchSuggestions.addClass('active');
-                        console.log('Suggestions added, element:', $searchSuggestions[0]);
-                        console.log('Children count:', $searchSuggestions.children().length);
-                        console.log('HTML content:', $searchSuggestions.html());
-                        console.log('Has active class:', $searchSuggestions.hasClass('active'));
-                        console.log('Display style:', $searchSuggestions.css('display'));
-                        console.log('Visibility:', $searchSuggestions.css('visibility'));
-                        console.log('Height:', $searchSuggestions.height());
-
-                        // Double check in DOM after a moment
-                        setTimeout(function() {
-                            console.log('=== After 100ms ===');
-                            var recheckElement = document.getElementById('wh-barter-search-suggestions');
-                            console.log('Element still exists:', recheckElement);
-                            console.log('Children in DOM:', recheckElement ? recheckElement.children.length : 'ELEMENT NOT FOUND');
-                            console.log('innerHTML:', recheckElement ? recheckElement.innerHTML : 'N/A');
-                        }, 100);
                     } else {
-                        console.log('No tags found or empty response');
                         $searchSuggestions.removeClass('active').empty();
                     }
                 },
