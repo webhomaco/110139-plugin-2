@@ -23,7 +23,6 @@ function wh_sub_admin_plan_edit_page() {
             'duration_label' => sanitize_text_field( $_POST['duration_label'] ),
             'price' => floatval( $_POST['price'] ),
             'token_type' => sanitize_text_field( $_POST['token_type'] ),
-            'wc_product_id' => ! empty( $_POST['wc_product_id'] ) ? absint( $_POST['wc_product_id'] ) : null,
             'status' => sanitize_text_field( $_POST['status'] ),
             'sort_order' => absint( $_POST['sort_order'] ),
         );
@@ -49,21 +48,7 @@ function wh_sub_admin_plan_edit_page() {
         }
     }
 
-    // Get WooCommerce products for dropdown
-    $wc_products = array();
-    if ( class_exists( 'WooCommerce' ) ) {
-        $args = array(
-            'post_type' => 'product',
-            'posts_per_page' => -1,
-            'post_status' => 'publish',
-            'orderby' => 'title',
-            'order' => 'ASC',
-        );
-        $products = get_posts( $args );
-        foreach ( $products as $product ) {
-            $wc_products[ $product->ID ] = $product->post_title;
-        }
-    }
+    // WooCommerce products are now auto-created, no need for dropdown
 
     ?>
     <div class="wrap wh-admin-plan-edit">
@@ -116,6 +101,31 @@ function wh_sub_admin_plan_edit_page() {
                                     </div>
                                 </td>
                             </tr>
+
+                            <tr>
+                                <th scope="row">
+                                    <label for="price"><?php esc_html_e( 'Price', 'webhoma-subscription' ); ?> <span class="required">*</span></label>
+                                </th>
+                                <td>
+                                    <input type="number" name="price" id="price" class="small-text" step="0.01"
+                                           value="<?php echo esc_attr( $plan->price ?? 0 ); ?>" min="0" required>
+                                    <p class="description"><?php echo esc_html( sprintf( __( 'Price in %s', 'webhoma-subscription' ), get_woocommerce_currency() ) ); ?></p>
+                                </td>
+                            </tr>
+
+                            <?php if ( $is_edit && ! empty( $plan->wc_product_id ) ) : ?>
+                            <tr>
+                                <th scope="row">
+                                    <label><?php esc_html_e( 'WooCommerce Product', 'webhoma-subscription' ); ?></label>
+                                </th>
+                                <td>
+                                    <a href="<?php echo esc_url( admin_url( 'post.php?post=' . $plan->wc_product_id . '&action=edit' ) ); ?>" target="_blank">
+                                        <?php esc_html_e( 'View Product', 'webhoma-subscription' ); ?> #<?php echo esc_html( $plan->wc_product_id ); ?>
+                                    </a>
+                                    <p class="description"><?php esc_html_e( 'Product auto-created and synced with this plan', 'webhoma-subscription' ); ?></p>
+                                </td>
+                            </tr>
+                            <?php endif; ?>
                         </table>
                     </div>
 
@@ -174,43 +184,6 @@ function wh_sub_admin_plan_edit_page() {
                         </table>
                     </div>
 
-                    <div class="wh-form-section">
-                        <h2><?php esc_html_e( 'Pricing & Integration', 'webhoma-subscription' ); ?></h2>
-
-                        <table class="form-table">
-                            <tr>
-                                <th scope="row">
-                                    <label for="price"><?php esc_html_e( 'Price', 'webhoma-subscription' ); ?> <span class="required">*</span></label>
-                                </th>
-                                <td>
-                                    <input type="number" name="price" id="price" class="small-text" step="0.01"
-                                           value="<?php echo esc_attr( $plan->price ?? 0 ); ?>" min="0" required>
-                                    <p class="description"><?php echo esc_html( sprintf( __( 'Price in %s', 'webhoma-subscription' ), get_woocommerce_currency() ) ); ?></p>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <th scope="row">
-                                    <label for="wc_product_id"><?php esc_html_e( 'WooCommerce Product', 'webhoma-subscription' ); ?></label>
-                                </th>
-                                <td>
-                                    <?php if ( ! empty( $wc_products ) ) : ?>
-                                        <select name="wc_product_id" id="wc_product_id">
-                                            <option value=""><?php esc_html_e( '-- Select Product --', 'webhoma-subscription' ); ?></option>
-                                            <?php foreach ( $wc_products as $product_id => $product_title ) : ?>
-                                                <option value="<?php echo esc_attr( $product_id ); ?>" <?php selected( $plan->wc_product_id ?? 0, $product_id ); ?>>
-                                                    <?php echo esc_html( $product_title ); ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                        <p class="description"><?php esc_html_e( 'Link this plan to a WooCommerce product', 'webhoma-subscription' ); ?></p>
-                                    <?php else : ?>
-                                        <p class="description"><?php esc_html_e( 'No WooCommerce products found. Create a product first.', 'webhoma-subscription' ); ?></p>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
                 </div>
 
                 <div class="wh-form-sidebar">

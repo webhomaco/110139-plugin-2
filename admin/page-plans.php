@@ -79,7 +79,7 @@ function wh_sub_admin_plans_page() {
                                 }
                                 ?>
                             </td>
-                            <td><?php echo esc_html( wc_price( $plan->price ) ); ?></td>
+                            <td><?php echo wp_kses_post( wc_price( $plan->price ) ); ?></td>
                             <td>
                                 <?php if ( $plan->wc_product_id ) : ?>
                                     <a href="<?php echo esc_url( admin_url( 'post.php?post=' . $plan->wc_product_id . '&action=edit' ) ); ?>" target="_blank">

@@ -75,7 +75,7 @@ function wh_sub_create_plan( $data ) {
             'duration_label' => sanitize_text_field( $data['duration_label'] ),
             'price' => floatval( $data['price'] ),
             'token_type' => sanitize_text_field( $data['token_type'] ),
-            'wc_product_id' => $data['wc_product_id'] ? absint( $data['wc_product_id'] ) : null,
+            'wc_product_id' => null,
             'status' => sanitize_text_field( $data['status'] ),
             'sort_order' => absint( $data['sort_order'] ),
         ),
@@ -83,7 +83,12 @@ function wh_sub_create_plan( $data ) {
     );
 
     if ( $inserted ) {
-        return $wpdb->insert_id;
+        $plan_id = $wpdb->insert_id;
+
+        // Auto-create WooCommerce product
+        wh_sub_sync_plan_to_wc_product( $plan_id );
+
+        return $plan_id;
     }
 
     return false;
@@ -157,7 +162,13 @@ function wh_sub_update_plan( $plan_id, $data ) {
         array( '%d' )
     );
 
-    return $updated !== false;
+    if ( $updated !== false ) {
+        // Sync changes to WooCommerce product
+        wh_sub_sync_plan_to_wc_product( $plan_id );
+        return true;
+    }
+
+    return false;
 }
 
 /**
@@ -218,4 +229,59 @@ function wh_sub_get_plan_by_product( $product_id ) {
     ) );
 
     return $plan;
+}
+
+/**
+ * Auto-create or update WooCommerce product for a plan
+ */
+function wh_sub_sync_plan_to_wc_product( $plan_id ) {
+    // Check if WooCommerce is active
+    if ( ! class_exists( 'WooCommerce' ) ) {
+        return false;
+    }
+
+    $plan = wh_sub_get_plan( $plan_id );
+    if ( ! $plan ) {
+        return false;
+    }
+
+    // Check if product already exists
+    if ( $plan->wc_product_id ) {
+        // Update existing product
+        $product = wc_get_product( $plan->wc_product_id );
+        if ( $product ) {
+            $product->set_name( $plan->name );
+            $product->set_description( $plan->description );
+            $product->set_regular_price( $plan->price );
+            $product->set_virtual( true );
+            $product->set_catalog_visibility( 'hidden' );
+            $product->save();
+
+            return $plan->wc_product_id;
+        }
+    }
+
+    // Create new product
+    $product = new WC_Product_Simple();
+    $product->set_name( $plan->name );
+    $product->set_description( $plan->description );
+    $product->set_regular_price( $plan->price );
+    $product->set_virtual( true );
+    $product->set_catalog_visibility( 'hidden' );
+    $product->set_status( 'publish' );
+
+    // Save product
+    $product_id = $product->save();
+
+    if ( $product_id ) {
+        // Link product to plan
+        wh_sub_link_plan_to_product( $plan_id, $product_id );
+
+        // Store plan ID in product meta for reverse lookup
+        update_post_meta( $product_id, '_wh_subscription_plan_id', $plan_id );
+
+        return $product_id;
+    }
+
+    return false;
 }
