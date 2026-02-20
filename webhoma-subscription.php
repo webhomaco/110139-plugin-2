@@ -84,8 +84,8 @@ function wh_sub_init() {
     // Add barter badge to listing cards
     add_action( 'rtcl_after_listing_loop_thumbnail', 'wh_sub_add_badge' );
 
-    // Override RTCL phone display with token system
-    add_action( 'rtcl_single_listing_content_end', 'wh_sub_custom_phone_display', 5 );
+    // Override RTCL phone display with token system (display in sidebar after seller info)
+    add_action( 'rtcl_after_single_listing_sidebar', 'wh_sub_custom_phone_display', 5 );
 
     // Register shortcode for token dashboard
     add_shortcode( 'wh_token_dashboard', 'wh_sub_dashboard_shortcode' );

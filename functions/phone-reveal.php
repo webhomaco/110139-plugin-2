@@ -16,7 +16,16 @@ function wh_sub_custom_phone_display( $listing ) {
     }
 
     $user_id = get_current_user_id();
-    $listing_id = $listing->get_id();
+
+    // Handle both listing object and listing ID
+    if ( is_object( $listing ) && method_exists( $listing, 'get_id' ) ) {
+        $listing_id = $listing->get_id();
+    } elseif ( is_numeric( $listing ) ) {
+        $listing_id = absint( $listing );
+    } else {
+        return; // Invalid input
+    }
+
     $phone = get_post_meta( $listing_id, 'phone', true );
 
     if ( ! $phone ) {
