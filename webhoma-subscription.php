@@ -34,13 +34,20 @@ function wh_sub_install() {
 // Include core files
 require_once WH_SUB_DIR . 'functions/barter.php';
 require_once WH_SUB_DIR . 'functions/tokens.php';
+require_once WH_SUB_DIR . 'functions/plans.php';
 require_once WH_SUB_DIR . 'functions/phone-reveal.php';
 require_once WH_SUB_DIR . 'ajax/barter-ajax.php';
 require_once WH_SUB_DIR . 'ajax/phone-ajax.php';
 
-// Include admin helper for testing
+// Include admin files
 if ( is_admin() ) {
     require_once WH_SUB_DIR . 'admin-helper.php';
+    require_once WH_SUB_DIR . 'admin/admin-menu.php';
+    require_once WH_SUB_DIR . 'admin/page-dashboard.php';
+    require_once WH_SUB_DIR . 'admin/page-plans.php';
+    require_once WH_SUB_DIR . 'admin/page-plan-edit.php';
+    require_once WH_SUB_DIR . 'admin/page-logs.php';
+    require_once WH_SUB_DIR . 'admin/page-settings.php';
 }
 
 // Check and update database if needed
