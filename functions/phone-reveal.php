@@ -11,12 +11,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Override RTCL phone display to hide phone and show reveal button
  */
 function wh_sub_custom_phone_display( $listing ) {
-    if ( ! is_user_logged_in() ) {
-        return; // Only for logged in users
-    }
-
-    $user_id = get_current_user_id();
-
     // Handle both listing object and listing ID
     if ( is_object( $listing ) && method_exists( $listing, 'get_id' ) ) {
         $listing_id = $listing->get_id();
@@ -31,6 +25,23 @@ function wh_sub_custom_phone_display( $listing ) {
     if ( ! $phone ) {
         return;
     }
+
+    // Show login message for non-logged-in users
+    if ( ! is_user_logged_in() ) {
+        ?>
+        <div class="wh-phone-reveal-section">
+            <div class="phone-number">
+                <span class="phone-label"><?php esc_html_e( 'Phone', 'webhoma-subscription' ); ?></span>
+                <small class="wh-login-required">
+                    <?php esc_html_e( 'Please login to reveal phone number', 'webhoma-subscription' ); ?>
+                </small>
+            </div>
+        </div>
+        <?php
+        return;
+    }
+
+    $user_id = get_current_user_id();
 
     // Check if user already viewed this listing
     $already_viewed = wh_sub_has_viewed_listing( $user_id, $listing_id );

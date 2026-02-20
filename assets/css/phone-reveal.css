@@ -45,6 +45,13 @@
     margin-top: 5px;
 }
 
+.wh-login-required {
+    color: #7f8c8d;
+    font-size: 12px;
+    display: block;
+    font-style: italic;
+}
+
 .phone-number-link {
     color: #3498db;
     text-decoration: none;
