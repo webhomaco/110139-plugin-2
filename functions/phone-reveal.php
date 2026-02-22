@@ -186,6 +186,40 @@ function wh_sub_custom_phone_display( $listing ) {
 }
 
 /**
+ * Get human-readable time remaining until expiry
+ */
+function wh_sub_get_time_remaining( $expiry_timestamp ) {
+    $now = time();
+    $diff = $expiry_timestamp - $now;
+
+    if ( $diff <= 0 ) {
+        return __( 'Expired', 'webhoma-subscription' );
+    }
+
+    $days = floor( $diff / DAY_IN_SECONDS );
+    $hours = floor( ( $diff % DAY_IN_SECONDS ) / HOUR_IN_SECONDS );
+    $minutes = floor( ( $diff % HOUR_IN_SECONDS ) / MINUTE_IN_SECONDS );
+
+    $parts = array();
+
+    if ( $days > 0 ) {
+        $parts[] = sprintf( _n( '%d day', '%d days', $days, 'webhoma-subscription' ), $days );
+    }
+    if ( $hours > 0 ) {
+        $parts[] = sprintf( _n( '%d hour', '%d hours', $hours, 'webhoma-subscription' ), $hours );
+    }
+    if ( $minutes > 0 && $days == 0 ) { // Only show minutes if less than a day
+        $parts[] = sprintf( _n( '%d minute', '%d minutes', $minutes, 'webhoma-subscription' ), $minutes );
+    }
+
+    if ( empty( $parts ) ) {
+        return __( 'Less than 1 minute', 'webhoma-subscription' );
+    }
+
+    return implode( ', ', $parts );
+}
+
+/**
  * Get user dashboard page content
  */
 function wh_sub_dashboard_content() {
@@ -219,6 +253,7 @@ function wh_sub_dashboard_content() {
                         <?php
                         $expiry = strtotime( $token_data->limited_expiry );
                         $is_expired = $expiry < time();
+                        $time_remaining = wh_sub_get_time_remaining( $expiry );
                         ?>
                         <div class="wh-balance-item">
                             <span class="wh-label"><?php esc_html_e( 'Limited Tokens:', 'webhoma-subscription' ); ?></span>
@@ -228,7 +263,7 @@ function wh_sub_dashboard_content() {
                                 if ( $is_expired ) {
                                     esc_html_e( '(Expired)', 'webhoma-subscription' );
                                 } else {
-                                    echo esc_html( sprintf( __( 'Expires: %s', 'webhoma-subscription' ), date_i18n( get_option( 'date_format' ), $expiry ) ) );
+                                    echo esc_html( sprintf( __( 'Expires in: %s', 'webhoma-subscription' ), $time_remaining ) );
                                 }
                                 ?>
                             </small>

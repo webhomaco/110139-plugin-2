@@ -27,6 +27,7 @@ function wh_sub_get_user_tokens( $user_id ) {
 
 /**
  * Get total available tokens for user
+ * Includes real-time expiration check
  */
 function wh_sub_get_available_tokens( $user_id ) {
     $token_data = wh_sub_get_user_tokens( $user_id );
@@ -37,11 +38,16 @@ function wh_sub_get_available_tokens( $user_id ) {
 
     $total = $token_data->unlimited_tokens;
 
-    // Add limited tokens if not expired
+    // Check and expire limited tokens in real-time
     if ( $token_data->limited_tokens > 0 && $token_data->limited_expiry ) {
         $expiry = strtotime( $token_data->limited_expiry );
+
         if ( $expiry > time() ) {
+            // Not expired yet - add to total
             $total += $token_data->limited_tokens;
+        } else {
+            // Expired - zero out and log
+            wh_sub_expire_user_tokens( $user_id, $token_data->limited_tokens );
         }
     }
 
@@ -226,3 +232,70 @@ function wh_sub_get_user_logs( $user_id, $limit = 20 ) {
         $limit
     ));
 }
+
+/**
+ * Expire tokens for a specific user (real-time check)
+ */
+function wh_sub_expire_user_tokens( $user_id, $expired_amount ) {
+    global $wpdb;
+
+    $table_name = $wpdb->prefix . 'user_tokens';
+
+    // Zero out limited tokens
+    $wpdb->update(
+        $table_name,
+        array( 'limited_tokens' => 0 ),
+        array( 'user_id' => $user_id ),
+        array( '%d' ),
+        array( '%d' )
+    );
+
+    // Log expiration
+    wh_sub_log_token_action(
+        $user_id,
+        'expire',
+        $expired_amount,
+        null,
+        sprintf( '%d limited tokens expired', $expired_amount )
+    );
+}
+
+/**
+ * Background cleanup - expire tokens for all users
+ * Runs once per hour via transient throttling
+ */
+function wh_sub_background_expire_tokens() {
+    // Only run once per hour
+    if ( get_transient( 'wh_sub_token_expiration_running' ) ) {
+        return;
+    }
+
+    // Set transient for 1 hour
+    set_transient( 'wh_sub_token_expiration_running', 1, HOUR_IN_SECONDS );
+
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'user_tokens';
+    $now = current_time( 'mysql' );
+
+    // Find users with expired limited tokens
+    $expired_users = $wpdb->get_results( $wpdb->prepare(
+        "SELECT user_id, limited_tokens
+         FROM $table_name
+         WHERE limited_tokens > 0
+         AND limited_expiry IS NOT NULL
+         AND limited_expiry < %s",
+        $now
+    ));
+
+    $count = 0;
+    foreach ( $expired_users as $user ) {
+        wh_sub_expire_user_tokens( $user->user_id, $user->limited_tokens );
+        $count++;
+    }
+
+    // Optional: Log background run for debugging
+    if ( $count > 0 ) {
+        error_log( sprintf( 'WH Token Expiration: Expired tokens for %d users', $count ) );
+    }
+}
+add_action( 'init', 'wh_sub_background_expire_tokens' );
