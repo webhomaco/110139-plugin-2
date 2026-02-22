@@ -169,9 +169,26 @@ function wh_sub_enqueue_assets() {
                 WH_SUB_VERSION
             );
 
+            // Enqueue subscription CSS for modal styles
+            wp_enqueue_style(
+                'wh-subscription-style',
+                WH_SUB_URL . 'assets/css/subscription.css',
+                array(),
+                WH_SUB_VERSION
+            );
+
             wp_enqueue_script(
                 'wh-phone-reveal-script',
                 WH_SUB_URL . 'assets/js/phone-reveal.js',
+                array( 'jquery' ),
+                WH_SUB_VERSION,
+                true
+            );
+
+            // Enqueue subscription JS for modal functionality
+            wp_enqueue_script(
+                'wh-subscription-script',
+                WH_SUB_URL . 'assets/js/subscription.js',
                 array( 'jquery' ),
                 WH_SUB_VERSION,
                 true

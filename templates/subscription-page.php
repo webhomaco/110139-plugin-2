@@ -106,20 +106,17 @@ foreach ( $plans as $plan ) {
 
             <?php
             // Display Monthly/Subscription plans
-            $plan_index = 0;
             foreach ( $monthly_plans as $plan ) :
-                $plan_index++;
-                $plan_class = $plan_index === 1 ? 'wh-gold' : 'wh-silver';
                 $price_display = wc_price( $plan->price );
             ?>
             <div class="wh-plan-col">
-                <div class="wh-sub-box wh-sub-box-premium">
-                    <div class="wh-sub-box-items wh-sub-box-items-<?php echo esc_attr( $plan_class ); ?>">
+                <div class="wh-sub-box wh-sub-box-2">
+                    <div class="wh-sub-box-items">
                         <div>
                             <?php if ( $plan->image_url ) : ?>
                                 <img src="<?php echo esc_url( $plan->image_url ); ?>" alt="<?php echo esc_attr( $plan->name ); ?>" class="wh-plan-icon">
                             <?php else : ?>
-                                <img src="<?php echo esc_url( WH_SUB_URL . 'assets/img/subscription/' . ( $plan_class === 'wh-gold' ? 'i1.svg' : 'i2.svg' ) ); ?>" alt="" class="wh-plan-icon">
+                                <img src="<?php echo esc_url( WH_SUB_URL . 'assets/img/subscription/i1.svg' ); ?>" alt="" class="wh-plan-icon">
                             <?php endif; ?>
 
                             <h3 class="wh-plan-name"><?php echo esc_html( $plan->name ); ?></h3>
@@ -150,7 +147,7 @@ foreach ( $plans as $plan ) {
                             </ul>
                         </div>
 
-                        <button class="wh-btn wh-btn-<?php echo esc_attr( $plan_class ); ?> wh-purchase-btn" data-product-id="<?php echo esc_attr( $plan->wc_product_id ); ?>">
+                        <button class="wh-btn wh-btn-gold wh-purchase-btn" data-product-id="<?php echo esc_attr( $plan->wc_product_id ); ?>">
                             <?php esc_html_e( 'Select Plan', 'webhoma-subscription' ); ?> - <?php echo wp_kses_post( $price_display ); ?>
                         </button>
                     </div>
@@ -163,3 +160,39 @@ foreach ( $plans as $plan ) {
 
     <img src="<?php echo esc_url( WH_SUB_URL . 'assets/img/subscription/i6.svg' ); ?>" alt="" class="wh-vector2">
 </section>
+
+<!-- Insufficient Tokens Modal -->
+<div class="wh-insufficient-modal wh-modal">
+    <img src="<?php echo esc_url( WH_SUB_URL . 'assets/img/subscription/i10.svg' ); ?>" alt="" class="wh-vector3">
+    <img src="<?php echo esc_url( WH_SUB_URL . 'assets/img/subscription/i14.svg' ); ?>" alt="" class="wh-vector5">
+
+    <div class="wh-subscription-container">
+        <img src="<?php echo esc_url( WH_SUB_URL . 'assets/img/subscription/i13.svg' ); ?>" alt="" class="wh-modal-title-icon">
+
+        <div class="wh-modal-title"><?php esc_html_e( 'Insufficient Tokens', 'webhoma-subscription' ); ?></div>
+
+        <div class="wh-modal-hr">
+            <svg width="547" height="2" viewBox="0 0 547 2" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0.599976 0.600098L545.6 0.60005" stroke="url(#paint0_linear_modal)" stroke-width="1.2" stroke-linecap="round"/>
+                <defs>
+                    <linearGradient id="paint0_linear_modal" x1="0.599976" y1="1.1001" x2="545.6" y2="1.10005" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#F5F5F5"/>
+                        <stop offset="0.501047" stop-color="#DBDBDB"/>
+                        <stop offset="1" stop-color="#F8F8F8"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+        </div>
+
+        <p class="wh-insufficient-text"><?php esc_html_e( 'You do not have enough tokens to view the phone number.', 'webhoma-subscription' ); ?></p>
+
+        <div class="wh-modal-buttons">
+            <a href="<?php echo esc_url( get_permalink() ); ?>" class="wh-btn wh-btn-gold">
+                <?php esc_html_e( 'Purchase Premium', 'webhoma-subscription' ); ?>
+            </a>
+            <button class="wh-btn-close wh-close-modal"><?php esc_html_e( 'Close', 'webhoma-subscription' ); ?></button>
+        </div>
+    </div>
+
+    <img src="<?php echo esc_url( WH_SUB_URL . 'assets/img/subscription/i12.svg' ); ?>" alt="" class="wh-vector4">
+</div>

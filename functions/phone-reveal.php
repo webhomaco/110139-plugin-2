@@ -8,6 +8,108 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Render insufficient tokens modal in footer with subscription plans
+ */
+function wh_sub_render_insufficient_modal() {
+    if ( ! is_singular( 'rtcl_listing' ) ) {
+        return;
+    }
+
+    // Get active plans
+    $plans = wh_sub_get_all_plans( 'active' );
+
+    if ( empty( $plans ) ) {
+        return;
+    }
+
+    // Separate plans by type
+    $monthly_plans = array();
+    foreach ( $plans as $plan ) {
+        if ( $plan->duration_days > 0 ) {
+            $monthly_plans[] = $plan;
+        }
+    }
+    ?>
+    <!-- Insufficient Tokens Modal with Subscription Plans -->
+    <div class="wh-insufficient-modal wh-modal">
+        <img src="<?php echo esc_url( WH_SUB_URL . 'assets/img/subscription/i4.svg' ); ?>" alt="" class="wh-vector1">
+
+        <div class="wh-subscription-container">
+            <h1 class="wh-subscription-title"><?php esc_html_e( 'Insufficient Tokens', 'webhoma-subscription' ); ?></h1>
+            <p class="wh-subscription-subtitle">
+                <?php esc_html_e( 'You need tokens to view phone numbers. Select from best plan, ensuring perfect match.', 'webhoma-subscription' ); ?>
+            </p>
+
+            <?php if ( ! empty( $monthly_plans ) ) : ?>
+            <div class="wh-subscription-headers">
+                <div class="wh-header-item wh-header-monthly">
+                    <h2 class="wh-sub-title-2"><?php esc_html_e( 'Subscription Packages', 'webhoma-subscription' ); ?></h2>
+                </div>
+            </div>
+
+            <div class="wh-subscription-plans">
+                <?php
+                foreach ( $monthly_plans as $plan ) :
+                    $price_display = wc_price( $plan->price );
+                ?>
+                <div class="wh-plan-col">
+                    <div class="wh-sub-box wh-sub-box-2">
+                        <div class="wh-sub-box-items">
+                            <div>
+                                <?php if ( $plan->image_url ) : ?>
+                                    <img src="<?php echo esc_url( $plan->image_url ); ?>" alt="<?php echo esc_attr( $plan->name ); ?>" class="wh-plan-icon">
+                                <?php else : ?>
+                                    <img src="<?php echo esc_url( WH_SUB_URL . 'assets/img/subscription/i1.svg' ); ?>" alt="" class="wh-plan-icon">
+                                <?php endif; ?>
+
+                                <h3 class="wh-plan-name"><?php echo esc_html( $plan->name ); ?></h3>
+
+                                <?php if ( $plan->description ) : ?>
+                                    <p class="wh-plan-text1"><?php echo esc_html( wp_trim_words( $plan->description, 10 ) ); ?></p>
+                                <?php endif; ?>
+
+                                <h4 class="wh-plan-badge"><?php echo esc_html( $plan->name ); ?></h4>
+
+                                <p class="wh-plan-text2"><?php esc_html_e( 'Plan includes:', 'webhoma-subscription' ); ?></p>
+
+                                <ul class="wh-plan-features">
+                                    <li>
+                                        <img src="<?php echo esc_url( WH_SUB_URL . 'assets/img/subscription/i5.svg' ); ?>" alt="">
+                                        <span><?php echo esc_html( number_format( $plan->token_count ) ); ?> <?php esc_html_e( 'Tokens', 'webhoma-subscription' ); ?></span>
+                                    </li>
+                                    <?php if ( $plan->duration_label ) : ?>
+                                    <li>
+                                        <img src="<?php echo esc_url( WH_SUB_URL . 'assets/img/subscription/i5.svg' ); ?>" alt="">
+                                        <span><?php echo esc_html( $plan->duration_label ); ?></span>
+                                    </li>
+                                    <?php endif; ?>
+                                    <li>
+                                        <img src="<?php echo esc_url( WH_SUB_URL . 'assets/img/subscription/i5.svg' ); ?>" alt="">
+                                        <span><?php echo esc_html( $plan->token_type === 'unlimited' ? __( 'Never Expires', 'webhoma-subscription' ) : __( 'Limited Duration', 'webhoma-subscription' ) ); ?></span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <button class="wh-btn wh-btn-gold wh-purchase-btn" data-product-id="<?php echo esc_attr( $plan->wc_product_id ); ?>">
+                                <?php esc_html_e( 'Select Plan', 'webhoma-subscription' ); ?> - <?php echo wp_kses_post( $price_display ); ?>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            <?php endif; ?>
+
+            <button class="wh-btn-close wh-close-modal" style="margin-top: 2rem;"><?php esc_html_e( 'Close', 'webhoma-subscription' ); ?></button>
+        </div>
+
+        <img src="<?php echo esc_url( WH_SUB_URL . 'assets/img/subscription/i6.svg' ); ?>" alt="" class="wh-vector2">
+    </div>
+    <?php
+}
+add_action( 'wp_footer', 'wh_sub_render_insufficient_modal' );
+
+/**
  * Override RTCL phone display to hide phone and show reveal button
  */
 function wh_sub_custom_phone_display( $listing ) {
@@ -60,9 +162,8 @@ function wh_sub_custom_phone_display( $listing ) {
                 </a>
             <?php else : ?>
                 <button
-                    class="wh-reveal-phone-btn"
+                    class="wh-reveal-phone-btn <?php echo $available_tokens < 1 ? 'wh-insufficient-tokens' : ''; ?>"
                     data-listing-id="<?php echo esc_attr( $listing_id ); ?>"
-                    <?php echo $available_tokens < 1 ? 'disabled' : ''; ?>
                 >
                     <i class="rtcl-icon rtcl-icon-phone"></i>
                     <?php esc_html_e( 'Reveal Phone (1 Token)', 'webhoma-subscription' ); ?>
@@ -74,7 +175,9 @@ function wh_sub_custom_phone_display( $listing ) {
                     </a>
                 </span>
                 <?php if ( $available_tokens < 1 ) : ?>
-                    <small class="wh-no-tokens"><?php esc_html_e( 'Insufficient tokens', 'webhoma-subscription' ); ?></small>
+                    <small class="wh-no-tokens">
+                        <?php esc_html_e( 'Insufficient tokens', 'webhoma-subscription' ); ?>
+                    </small>
                 <?php endif; ?>
             <?php endif; ?>
         </div>

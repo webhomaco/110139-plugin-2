@@ -29,13 +29,19 @@
     gap: 6px;
 }
 
-.wh-reveal-phone-btn:hover:not(:disabled) {
+.wh-reveal-phone-btn:hover:not(.wh-insufficient-tokens) {
     background: #2980b9;
 }
 
-.wh-reveal-phone-btn:disabled {
+.wh-reveal-phone-btn.wh-insufficient-tokens {
     background: #95a5a6;
-    cursor: not-allowed;
+    cursor: pointer;
+    opacity: 0.8;
+}
+
+.wh-reveal-phone-btn.wh-insufficient-tokens:hover {
+    opacity: 1;
+    background: #7f8c8d;
 }
 
 .wh-no-tokens {

@@ -7,7 +7,9 @@ jQuery(document).ready(function($) {
         var $btn = $(this);
         var listingId = $btn.data('listing-id');
 
-        if ($btn.prop('disabled')) {
+        // Show insufficient tokens modal if button is disabled
+        if ($btn.hasClass('wh-insufficient-tokens') || $btn.prop('disabled')) {
+            $('.wh-insufficient-modal').addClass('active-modal');
             return;
         }
 

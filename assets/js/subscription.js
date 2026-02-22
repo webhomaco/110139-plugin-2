@@ -7,13 +7,26 @@
 
     $(document).ready(function() {
 
-        // Handle purchase button click
-        $('.wh-purchase-btn').on('click', function(e) {
+        // Handle modal close
+        $('.wh-close-modal').on('click', function(e) {
+            e.preventDefault();
+            $('.wh-modal').removeClass('active-modal');
+        });
+
+        // Close modal on background click
+        $('.wh-modal').on('click', function(e) {
+            if ($(e.target).hasClass('wh-modal')) {
+                $(this).removeClass('active-modal');
+            }
+        });
+
+        // Handle purchase button click (using event delegation for dynamic content)
+        $(document).on('click', '.wh-purchase-btn', function(e) {
             e.preventDefault();
 
             var button = $(this);
             var productId = button.data('product-id');
-            var currentUrl = whSubscription.current_url;
+            var currentUrl = typeof whSubscription !== 'undefined' ? whSubscription.current_url : window.location.href;
 
             if (!productId) {
                 alert('Invalid product. Please try again.');
