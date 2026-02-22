@@ -36,6 +36,7 @@ require_once WH_SUB_DIR . 'functions/barter.php';
 require_once WH_SUB_DIR . 'functions/tokens.php';
 require_once WH_SUB_DIR . 'functions/plans.php';
 require_once WH_SUB_DIR . 'functions/phone-reveal.php';
+require_once WH_SUB_DIR . 'functions/woocommerce.php';
 require_once WH_SUB_DIR . 'ajax/barter-ajax.php';
 require_once WH_SUB_DIR . 'ajax/phone-ajax.php';
 
@@ -94,8 +95,9 @@ function wh_sub_init() {
     // Override RTCL phone display with token system (display in sidebar after seller info)
     add_action( 'rtcl_after_single_listing_sidebar', 'wh_sub_custom_phone_display', 5 );
 
-    // Register shortcode for token dashboard
+    // Register shortcodes
     add_shortcode( 'wh_token_dashboard', 'wh_sub_dashboard_shortcode' );
+    add_shortcode( 'wh_subscription_plans', 'wh_sub_subscription_plans_shortcode' );
 
     // Enqueue assets
     add_action( 'wp_enqueue_scripts', 'wh_sub_enqueue_assets' );
@@ -115,6 +117,12 @@ function wh_sub_dashboard_shortcode() {
     return ob_get_clean();
 }
 
+function wh_sub_subscription_plans_shortcode() {
+    ob_start();
+    include WH_SUB_DIR . 'templates/subscription-page.php';
+    return ob_get_clean();
+}
+
 function wh_sub_enqueue_assets() {
     // Check if we're on any RTCL-related page or if rtcl_listing_form shortcode is present
     global $post;
@@ -126,7 +134,10 @@ function wh_sub_enqueue_assets() {
 
     // Check if token dashboard shortcode is present
     $has_dashboard = is_a( $post, 'WP_Post' ) && has_shortcode( $post->post_content, 'wh_token_dashboard' );
-    
+
+    // Check if subscription plans shortcode is present
+    $has_subscription_page = is_a( $post, 'WP_Post' ) && has_shortcode( $post->post_content, 'wh_subscription_plans' );
+
     if ( $is_rtcl_page ) {
         // Barter assets
         wp_enqueue_style(
@@ -181,5 +192,29 @@ function wh_sub_enqueue_assets() {
             array(),
             WH_SUB_VERSION
         );
+    }
+
+    // Enqueue subscription page assets if shortcode is present
+    if ( $has_subscription_page ) {
+        wp_enqueue_style(
+            'wh-subscription-style',
+            WH_SUB_URL . 'assets/css/subscription.css',
+            array(),
+            WH_SUB_VERSION
+        );
+
+        wp_enqueue_script(
+            'wh-subscription-script',
+            WH_SUB_URL . 'assets/js/subscription.js',
+            array( 'jquery' ),
+            WH_SUB_VERSION,
+            true
+        );
+
+        wp_localize_script( 'wh-subscription-script', 'whSubscription', array(
+            'ajax_url' => admin_url( 'admin-ajax.php' ),
+            'nonce' => wp_create_nonce( 'wh_sub_nonce' ),
+            'current_url' => get_permalink()
+        ));
     }
 }
