@@ -23,12 +23,27 @@ define( 'WH_SUB_FILE', __FILE__ );
 define( 'WH_SUB_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WH_SUB_URL', plugin_dir_url( __FILE__ ) );
 
-// Activation hook - create database table
+// Activation hook - create database table and schedule cron
 register_activation_hook( __FILE__, 'wh_sub_install' );
 
 function wh_sub_install() {
     require_once WH_SUB_DIR . 'install.php';
     wh_sub_create_tables();
+
+    // Schedule renewal cron job
+    if ( ! wp_next_scheduled( 'wh_sub_daily_renewal_cron' ) ) {
+        wp_schedule_event( time(), 'daily', 'wh_sub_daily_renewal_cron' );
+    }
+}
+
+// Deactivation hook - unschedule cron
+register_deactivation_hook( __FILE__, 'wh_sub_deactivate' );
+
+function wh_sub_deactivate() {
+    $timestamp = wp_next_scheduled( 'wh_sub_daily_renewal_cron' );
+    if ( $timestamp ) {
+        wp_unschedule_event( $timestamp, 'wh_sub_daily_renewal_cron' );
+    }
 }
 
 // Include core files
@@ -37,6 +52,7 @@ require_once WH_SUB_DIR . 'functions/tokens.php';
 require_once WH_SUB_DIR . 'functions/plans.php';
 require_once WH_SUB_DIR . 'functions/phone-reveal.php';
 require_once WH_SUB_DIR . 'functions/woocommerce.php';
+require_once WH_SUB_DIR . 'functions/subscriptions.php';
 require_once WH_SUB_DIR . 'ajax/barter-ajax.php';
 require_once WH_SUB_DIR . 'ajax/phone-ajax.php';
 require_once WH_SUB_DIR . 'ajax/subscription-ajax.php';

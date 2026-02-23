@@ -37,9 +37,33 @@ function wh_sub_admin_dashboard_page() {
         LIMIT 5
     " );
 
+    // Handle manual renewal trigger
+    if ( isset( $_GET['wh_process_renewals'] ) && check_admin_referer( 'wh_process_renewals' ) ) {
+        $result = wh_sub_process_auto_renewals();
+        if ( $result['success'] ) {
+            echo '<div class="notice notice-success is-dismissible">';
+            echo '<p><strong>Success!</strong> ' . esc_html( $result['message'] ) . '</p>';
+            if ( ! empty( $result['errors'] ) ) {
+                echo '<p><strong>Errors:</strong></p><ul>';
+                foreach ( $result['errors'] as $error ) {
+                    echo '<li>' . esc_html( $error ) . '</li>';
+                }
+                echo '</ul>';
+            }
+            echo '</div>';
+        }
+    }
+
     ?>
     <div class="wrap wh-admin-dashboard">
-        <h1><?php esc_html_e( 'Classima VIP Dashboard', 'webhoma-subscription' ); ?></h1>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h1><?php esc_html_e( 'Classima VIP Dashboard', 'webhoma-subscription' ); ?></h1>
+            <a href="<?php echo esc_url( wp_nonce_url( add_query_arg( 'wh_process_renewals', '1' ), 'wh_process_renewals' ) ); ?>"
+               class="button button-primary">
+                <span class="dashicons dashicons-update" style="margin-top: 3px;"></span>
+                <?php esc_html_e( 'Process Renewals Now', 'webhoma-subscription' ); ?>
+            </a>
+        </div>
 
         <div class="wh-stats-grid">
             <div class="wh-stat-card">
