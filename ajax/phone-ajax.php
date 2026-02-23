@@ -33,14 +33,17 @@ function wh_sub_ajax_reveal_phone() {
         ) );
     }
 
+    // Get tokens required per reveal from settings
+    $tokens_per_reveal = get_option( 'wh_sub_tokens_per_reveal', 1 );
+
     // Check if user has enough tokens
     $available_tokens = wh_sub_get_available_tokens( $user_id );
-    if ( $available_tokens < 1 ) {
-        wp_send_json_error( array( 'message' => __( 'Insufficient tokens. Please purchase more tokens.', 'webhoma-subscription' ) ) );
+    if ( $available_tokens < $tokens_per_reveal ) {
+        wp_send_json_error( array( 'message' => sprintf( __( 'Insufficient tokens. You need %d tokens to reveal a phone number.', 'webhoma-subscription' ), $tokens_per_reveal ) ) );
     }
 
-    // Deduct token
-    $deducted = wh_sub_deduct_tokens( $user_id, 1, $listing_id, 'Phone number revealed' );
+    // Deduct tokens
+    $deducted = wh_sub_deduct_tokens( $user_id, $tokens_per_reveal, $listing_id, 'Phone number revealed' );
 
     if ( ! $deducted ) {
         wp_send_json_error( array( 'message' => __( 'Failed to deduct tokens.', 'webhoma-subscription' ) ) );

@@ -151,6 +151,9 @@ function wh_sub_custom_phone_display( $listing ) {
     // Get user's available tokens
     $available_tokens = wh_sub_get_available_tokens( $user_id );
 
+    // Get tokens required per reveal from settings
+    $tokens_per_reveal = get_option( 'wh_sub_tokens_per_reveal', 1 );
+
     ?>
     <div class="wh-phone-reveal-section">
         <div class="phone-number">
@@ -162,11 +165,11 @@ function wh_sub_custom_phone_display( $listing ) {
                 </a>
             <?php else : ?>
                 <button
-                    class="wh-reveal-phone-btn <?php echo $available_tokens < 1 ? 'wh-insufficient-tokens' : ''; ?>"
+                    class="wh-reveal-phone-btn <?php echo $available_tokens < $tokens_per_reveal ? 'wh-insufficient-tokens' : ''; ?>"
                     data-listing-id="<?php echo esc_attr( $listing_id ); ?>"
                 >
                     <i class="rtcl-icon rtcl-icon-phone"></i>
-                    <?php esc_html_e( 'Reveal Phone (1 Token)', 'webhoma-subscription' ); ?>
+                    <?php echo sprintf( esc_html__( 'Reveal Phone (%d %s)', 'webhoma-subscription' ), $tokens_per_reveal, _n( 'Token', 'Tokens', $tokens_per_reveal, 'webhoma-subscription' ) ); ?>
                 </button>
                 <span class="wh-phone-revealed" style="display: none;">
                     <a href="tel:" class="phone-number-link">
@@ -174,9 +177,9 @@ function wh_sub_custom_phone_display( $listing ) {
                         <span class="wh-phone-number"></span>
                     </a>
                 </span>
-                <?php if ( $available_tokens < 1 ) : ?>
+                <?php if ( $available_tokens < $tokens_per_reveal ) : ?>
                     <small class="wh-no-tokens">
-                        <?php esc_html_e( 'Insufficient tokens', 'webhoma-subscription' ); ?>
+                        <?php echo sprintf( esc_html__( 'Insufficient tokens (need %d)', 'webhoma-subscription' ), $tokens_per_reveal ); ?>
                     </small>
                 <?php endif; ?>
             <?php endif; ?>
