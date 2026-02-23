@@ -6,11 +6,13 @@
  * - Add unlimited tokens: ?wh_add_tokens=10
  * - Reduce tokens: ?wh_reduce_tokens=5
  * - Add expiring tokens: ?wh_test_tokens=10&wh_test_minutes=2
+ * - Test purchase plan: ?wh_test_purchase_plan=5
  *
  * Examples:
  * - http://classima.local/wp-admin/?wh_add_tokens=10
  * - http://classima.local/wp-admin/?wh_reduce_tokens=5
  * - http://classima.local/wp-admin/?wh_test_tokens=5&wh_test_minutes=3
+ * - http://classima.local/wp-admin/?wh_test_purchase_plan=5
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -20,6 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 add_action( 'admin_init', 'wh_sub_admin_add_test_tokens' );
 add_action( 'admin_init', 'wh_sub_admin_reduce_test_tokens' );
 add_action( 'admin_init', 'wh_sub_admin_add_expiring_tokens' );
+add_action( 'admin_init', 'wh_sub_admin_test_purchase_plan' );
 
 function wh_sub_admin_add_test_tokens() {
     if ( ! isset( $_GET['wh_add_tokens'] ) || ! current_user_can( 'manage_options' ) ) {
@@ -105,3 +108,89 @@ function wh_sub_admin_add_expiring_tokens() {
         });
     }
 }
+
+function wh_sub_admin_test_purchase_plan() {
+    if ( ! isset( $_GET['wh_test_purchase_plan'] ) || ! current_user_can( 'manage_options' ) ) {
+        return;
+    }
+
+    $plan_id = absint( $_GET['wh_test_purchase_plan'] );
+    $user_id = get_current_user_id();
+
+    if ( $plan_id > 0 && $user_id > 0 ) {
+        // Get plan details
+        $plan = wh_sub_get_plan( $plan_id );
+
+        if ( ! $plan ) {
+            add_action( 'admin_notices', function() use ( $plan_id ) {
+                echo '<div class="notice notice-error is-dismissible">';
+                echo '<p><strong>Error!</strong> Plan ID ' . esc_html( $plan_id ) . ' not found.</p>';
+                echo '</div>';
+            });
+            return;
+        }
+
+        if ( ! $plan->wc_product_id ) {
+            add_action( 'admin_notices', function() use ( $plan ) {
+                echo '<div class="notice notice-error is-dismissible">';
+                echo '<p><strong>Error!</strong> Plan "' . esc_html( $plan->name ) . '" has no associated WooCommerce product.</p>';
+                echo '</div>';
+            });
+            return;
+        }
+
+        // Get user data
+        $user = get_userdata( $user_id );
+
+        // Create WooCommerce order
+        $order = wc_create_order( array(
+            'customer_id' => $user_id,
+            'billing_email' => $user->user_email,
+            'billing_first_name' => $user->first_name,
+            'billing_last_name' => $user->last_name,
+        ));
+
+        // Add product to order
+        $product = wc_get_product( $plan->wc_product_id );
+        if ( ! $product ) {
+            add_action( 'admin_notices', function() use ( $plan ) {
+                echo '<div class="notice notice-error is-dismissible">';
+                echo '<p><strong>Error!</strong> WooCommerce product for plan "' . esc_html( $plan->name ) . '" not found.</p>';
+                echo '</div>';
+            });
+            return;
+        }
+
+        $order->add_product( $product, 1 );
+        $order->calculate_totals();
+
+        // Add note indicating this is a test purchase
+        $order->add_order_note( 'Test purchase via admin helper' );
+
+        // Mark order as completed - this triggers our hook that grants tokens
+        $order->update_status( 'completed', 'Test purchase completed' );
+        $order->save();
+
+        // Redirect with success message
+        wp_redirect( add_query_arg( array(
+            'wh_test_purchase_success' => '1',
+            'plan_name' => urlencode( $plan->name ),
+            'order_id' => $order->get_id()
+        ), admin_url() ) );
+        exit;
+    }
+}
+
+// Show success message after redirect
+add_action( 'admin_notices', function() {
+    if ( isset( $_GET['wh_test_purchase_success'] ) && current_user_can( 'manage_options' ) ) {
+        $plan_name = isset( $_GET['plan_name'] ) ? sanitize_text_field( urldecode( $_GET['plan_name'] ) ) : 'Unknown';
+        $order_id = isset( $_GET['order_id'] ) ? absint( $_GET['order_id'] ) : 0;
+
+        echo '<div class="notice notice-success is-dismissible">';
+        echo '<p><strong>Success!</strong> Test purchase completed for plan: ' . esc_html( $plan_name ) . '</p>';
+        echo '<p>Order ID: <a href="' . esc_url( admin_url( 'post.php?post=' . $order_id . '&action=edit' ) ) . '">#' . esc_html( $order_id ) . '</a></p>';
+        echo '<p><em>Tokens have been added to your account via the order completion hook.</em></p>';
+        echo '</div>';
+    }
+});

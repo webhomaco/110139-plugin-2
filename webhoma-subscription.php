@@ -99,6 +99,11 @@ function wh_sub_init() {
     add_shortcode( 'wh_token_dashboard', 'wh_sub_dashboard_shortcode' );
     add_shortcode( 'wh_subscription_plans', 'wh_sub_subscription_plans_shortcode' );
 
+    // RTCL My Account integration (Classima uses RTCL, not WooCommerce)
+    add_filter( 'rtcl_my_account_endpoint', 'wh_sub_add_rtcl_endpoint' );
+    add_filter( 'rtcl_account_menu_items', 'wh_sub_add_rtcl_menu_item', 10, 3 );
+    add_action( 'rtcl_account_my-tokens_endpoint', 'wh_sub_my_account_endpoint_content' );
+
     // Enqueue assets
     add_action( 'wp_enqueue_scripts', 'wh_sub_enqueue_assets' );
 
@@ -121,6 +126,36 @@ function wh_sub_subscription_plans_shortcode() {
     ob_start();
     include WH_SUB_DIR . 'templates/subscription-page.php';
     return ob_get_clean();
+}
+
+/**
+ * Register My Tokens endpoint with RTCL
+ */
+function wh_sub_add_rtcl_endpoint( $endpoints ) {
+    $endpoints['my-tokens'] = 'my-tokens';
+    return $endpoints;
+}
+
+/**
+ * Add My Tokens menu item to RTCL My Account menu
+ */
+function wh_sub_add_rtcl_menu_item( $menu_items, $default_menu_items, $endpoints ) {
+    // Insert after dashboard
+    $new_items = array();
+    foreach ( $menu_items as $key => $label ) {
+        $new_items[ $key ] = $label;
+        if ( $key === 'dashboard' ) {
+            $new_items['my-tokens'] = __( 'My Tokens', 'webhoma-subscription' );
+        }
+    }
+    return $new_items;
+}
+
+/**
+ * Display My Tokens endpoint content
+ */
+function wh_sub_my_account_endpoint_content() {
+    wh_sub_dashboard_content();
 }
 
 function wh_sub_enqueue_assets() {
@@ -201,11 +236,25 @@ function wh_sub_enqueue_assets() {
         }
     }
 
-    // Enqueue dashboard styles if shortcode is present
-    if ( $has_dashboard ) {
+    // Enqueue dashboard styles if shortcode is present or on RTCL My Account page
+    $is_my_account = false;
+    if ( class_exists( 'Rtcl\Helpers\Functions' ) ) {
+        $is_my_account = \Rtcl\Helpers\Functions::is_account_page( 'my-tokens' );
+    }
+    if ( $has_dashboard || $is_my_account ) {
         wp_enqueue_style(
-            'wh-phone-reveal-style',
-            WH_SUB_URL . 'assets/css/phone-reveal.css',
+            'wh-token-dashboard-style',
+            WH_SUB_URL . 'assets/css/token-dashboard.css',
+            array(),
+            WH_SUB_VERSION
+        );
+    }
+
+    // Enqueue My Account icon styles on RTCL account pages
+    if ( class_exists( 'Rtcl\Helpers\Functions' ) && \Rtcl\Helpers\Functions::is_account_page() ) {
+        wp_enqueue_style(
+            'wh-my-account-icons',
+            WH_SUB_URL . 'assets/css/my-account-icons.css',
             array(),
             WH_SUB_VERSION
         );

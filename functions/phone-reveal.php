@@ -231,7 +231,22 @@ function wh_sub_dashboard_content() {
     $user_id = get_current_user_id();
     $token_data = wh_sub_get_user_tokens( $user_id );
     $available_tokens = wh_sub_get_available_tokens( $user_id );
-    $logs = wh_sub_get_user_logs( $user_id, 20 );
+
+    // Pagination
+    $paged = isset( $_GET['token_page'] ) ? absint( $_GET['token_page'] ) : 1;
+    $per_page = 10;
+    $offset = ( $paged - 1 ) * $per_page;
+
+    // Get total count for pagination
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'token_logs';
+    $total_logs = $wpdb->get_var( $wpdb->prepare(
+        "SELECT COUNT(*) FROM $table_name WHERE user_id = %d",
+        $user_id
+    ));
+    $total_pages = ceil( $total_logs / $per_page );
+
+    $logs = wh_sub_get_user_logs( $user_id, $per_page, $offset );
 
     ?>
     <div class="wh-token-dashboard">
@@ -276,36 +291,70 @@ function wh_sub_dashboard_content() {
         <div class="wh-token-logs">
             <h3><?php esc_html_e( 'Token Usage History', 'webhoma-subscription' ); ?></h3>
             <?php if ( ! empty( $logs ) ) : ?>
-                <table class="wh-logs-table">
-                    <thead>
-                        <tr>
-                            <th><?php esc_html_e( 'Date', 'webhoma-subscription' ); ?></th>
-                            <th><?php esc_html_e( 'Action', 'webhoma-subscription' ); ?></th>
-                            <th><?php esc_html_e( 'Amount', 'webhoma-subscription' ); ?></th>
-                            <th><?php esc_html_e( 'Description', 'webhoma-subscription' ); ?></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ( $logs as $log ) : ?>
-                            <tr>
-                                <td><?php echo esc_html( date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $log->created_at ) ) ); ?></td>
-                                <td>
-                                    <span class="wh-action-badge wh-action-<?php echo esc_attr( $log->action_type ); ?>">
-                                        <?php echo esc_html( ucfirst( $log->action_type ) ); ?>
-                                    </span>
-                                </td>
-                                <td>
-                                    <?php if ( $log->action_type === 'add' ) : ?>
-                                        <span class="wh-amount-positive">+<?php echo esc_html( $log->amount ); ?></span>
+                <ul class="wh-logs-table">
+                    <ul class="thead">
+                        <li><?php esc_html_e( 'Listing', 'webhoma-subscription' ); ?></li>
+                        <li><?php esc_html_e( 'Phone Number', 'webhoma-subscription' ); ?></li>
+                        <li><?php esc_html_e( 'Date', 'webhoma-subscription' ); ?></li>
+                        <li><?php esc_html_e( 'Credit', 'webhoma-subscription' ); ?></li>
+                    </ul>
+                    <ul class="tbody">
+                        <?php foreach ( $logs as $log ) :
+                            $listing_id = $log->listing_id;
+                            $listing_title = $listing_id ? get_the_title( $listing_id ) : '-';
+                            $listing_link = $listing_id ? get_permalink( $listing_id ) : '#';
+                            $phone_number = $listing_id ? get_post_meta( $listing_id, 'phone', true ) : '-';
+                        ?>
+                            <li>
+                                <span class="table-title">
+                                    <?php if ( $listing_id ) : ?>
+                                        <a href="<?php echo esc_url( $listing_link ); ?>"><?php echo esc_html( $listing_title ); ?></a>
                                     <?php else : ?>
-                                        <span class="wh-amount-negative">-<?php echo esc_html( $log->amount ); ?></span>
+                                        <?php echo esc_html( $log->description ); ?>
                                     <?php endif; ?>
-                                </td>
-                                <td><?php echo esc_html( $log->description ); ?></td>
-                            </tr>
+                                </span>
+                                <span class="table-number"><?php echo esc_html( $phone_number ); ?></span>
+                                <span class="table-date"><?php echo esc_html( date_i18n( get_option( 'date_format' ), strtotime( $log->created_at ) ) ); ?></span>
+                                <span class="table-credit <?php echo $log->action_type === 'add' || $log->action_type === 'purchase' ? 'positive' : ''; ?>">
+                                    <?php echo $log->action_type === 'add' || $log->action_type === 'purchase' ? '+' : '-'; ?><?php echo esc_html( $log->amount ); ?>
+                                </span>
+                                <div class="wh-logs-mobile">
+                                    <div>
+                                        <span class="table-number"><?php echo esc_html( $phone_number ); ?></span>
+                                    </div>
+                                    <div>
+                                        <span class="table-date"><?php echo esc_html( date_i18n( get_option( 'date_format' ), strtotime( $log->created_at ) ) ); ?></span>
+                                    </div>
+                                </div>
+                            </li>
                         <?php endforeach; ?>
-                    </tbody>
-                </table>
+                    </ul>
+                </ul>
+
+                <?php if ( $total_pages > 1 ) : ?>
+                    <div class="wh-pagination">
+                        <?php
+                        $current_url = remove_query_arg( 'token_page' );
+
+                        if ( $paged > 1 ) :
+                            ?>
+                            <a href="<?php echo esc_url( add_query_arg( 'token_page', $paged - 1, $current_url ) ); ?>" class="wh-pagination-prev">
+                                &laquo; <?php esc_html_e( 'Previous', 'webhoma-subscription' ); ?>
+                            </a>
+                        <?php endif; ?>
+
+                        <span class="wh-pagination-info">
+                            <?php echo sprintf( __( 'Page %d of %d', 'webhoma-subscription' ), $paged, $total_pages ); ?>
+                        </span>
+
+                        <?php if ( $paged < $total_pages ) : ?>
+                            <a href="<?php echo esc_url( add_query_arg( 'token_page', $paged + 1, $current_url ) ); ?>" class="wh-pagination-next">
+                                <?php esc_html_e( 'Next', 'webhoma-subscription' ); ?> &raquo;
+                            </a>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
+
             <?php else : ?>
                 <p class="wh-no-logs"><?php esc_html_e( 'No token activity yet.', 'webhoma-subscription' ); ?></p>
             <?php endif; ?>

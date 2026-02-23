@@ -221,15 +221,16 @@ function wh_sub_log_token_action( $user_id, $action_type, $amount, $listing_id =
 /**
  * Get user token logs
  */
-function wh_sub_get_user_logs( $user_id, $limit = 20 ) {
+function wh_sub_get_user_logs( $user_id, $limit = 20, $offset = 0 ) {
     global $wpdb;
 
     $table_name = $wpdb->prefix . 'token_logs';
 
     return $wpdb->get_results( $wpdb->prepare(
-        "SELECT * FROM $table_name WHERE user_id = %d ORDER BY created_at DESC LIMIT %d",
+        "SELECT * FROM $table_name WHERE user_id = %d ORDER BY created_at DESC LIMIT %d OFFSET %d",
         $user_id,
-        $limit
+        $limit,
+        $offset
     ));
 }
 

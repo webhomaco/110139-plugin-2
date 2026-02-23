@@ -1,0 +1,369 @@
+/* Token Dashboard - Red Theme */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+.wh-token-dashboard {
+  font-family: "Poppins", sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px 0;
+}
+
+/* Token Balance Card */
+.wh-token-balance-card {
+  background: linear-gradient(135deg, #FF4861 0%, #F85C71 100%);
+  color: white;
+  padding: 40px;
+  border-radius: 20px;
+  margin-bottom: 40px;
+  box-shadow: 0 5px 20px rgba(255, 72, 97, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.wh-token-balance-card::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 300px;
+  height: 300px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+}
+
+.wh-token-balance-card h3 {
+  margin: 0 0 25px 0;
+  font-size: 20px;
+  font-weight: 600;
+  opacity: 0.95;
+  position: relative;
+  z-index: 2;
+}
+
+.wh-balance-amount {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 25px;
+  position: relative;
+  z-index: 2;
+}
+
+.wh-token-count {
+  font-size: 56px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.wh-token-label {
+  font-size: 16px;
+  opacity: 0.9;
+  font-weight: 400;
+}
+
+.wh-balance-breakdown {
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
+  padding-top: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  position: relative;
+  z-index: 2;
+}
+
+.wh-balance-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.wh-balance-item .wh-label {
+  opacity: 0.95;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.wh-balance-item .wh-value {
+  font-weight: 700;
+  font-size: 24px;
+}
+
+.wh-balance-item small {
+  flex-basis: 100%;
+  margin-top: 5px;
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+.wh-expired {
+  color: #ffcdd2;
+}
+
+.wh-expiry {
+  opacity: 0.85;
+}
+
+/* Token Logs Table */
+.wh-token-logs {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.wh-token-logs h3 {
+  margin: 0;
+  padding: 25px 30px;
+  font-size: 22px;
+  font-weight: 600;
+  color: #282828;
+  border-bottom: 1px solid #EBEBEB;
+}
+
+.wh-logs-table {
+  width: 100%;
+}
+
+.wh-logs-table .thead {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1.5fr 1fr;
+  color: #919191;
+  font-weight: 500;
+  text-align: center;
+  padding: 20px 30px;
+  gap: 0 20px;
+  font-size: 16px;
+  margin: 0;
+  list-style: none;
+  background: #FAFAFA;
+}
+
+.wh-logs-table .thead li:first-child {
+  text-align: left;
+}
+
+.wh-logs-table .tbody {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wh-logs-table .tbody li {
+  border-top: 1px solid #EBEBEB;
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1.5fr 1fr;
+  padding: 20px 30px;
+  text-align: center;
+  align-items: center;
+  font-size: 15px;
+  gap: 0 20px;
+  font-weight: 500;
+  color: #282828;
+  transition: background 0.2s;
+}
+
+.wh-logs-table .tbody li:hover {
+  background: #FAFAFA;
+}
+
+.wh-logs-table .table-title {
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+}
+
+.wh-logs-table .table-title a {
+  color: #333;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.wh-logs-table .table-title a:hover {
+  color: #FF4861;
+}
+
+.wh-logs-table .table-number {
+  color: #666;
+}
+
+.wh-logs-table .table-date {
+  color: #888;
+  font-size: 14px;
+}
+
+.wh-logs-table .table-credit {
+  color: #F85C71;
+  font-weight: 700;
+}
+
+.wh-logs-table .table-credit.positive {
+  color: #4CAF50;
+}
+
+/* No Logs Message */
+.wh-no-logs {
+  background: white;
+  border-radius: 20px;
+  padding: 60px 30px;
+  text-align: center;
+  color: #999;
+  font-size: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Action Type Badge */
+.wh-action-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.wh-action-add,
+.wh-action-purchase {
+  background: #E8F5E9;
+  color: #2E7D32;
+}
+
+.wh-action-deduct,
+.wh-action-expire {
+  background: #FFEBEE;
+  color: #C62828;
+}
+
+/* Mobile Responsive */
+.wh-logs-mobile {
+  display: none;
+}
+
+@media (max-width: 992px) {
+  .wh-logs-table .thead,
+  .wh-logs-table .tbody {
+    grid-template-columns: 1.5fr 1fr;
+  }
+
+  .wh-logs-table .table-number,
+  .wh-logs-table .table-date {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .wh-token-balance-card {
+    padding: 30px 20px;
+  }
+
+  .wh-token-count {
+    font-size: 42px;
+  }
+
+  .wh-token-logs h3 {
+    padding: 20px;
+    font-size: 18px;
+  }
+
+  .wh-logs-table .thead {
+    padding: 15px 20px;
+    font-size: 14px;
+  }
+
+  .wh-logs-table .tbody li {
+    padding: 15px 20px;
+    font-size: 14px;
+  }
+
+  .wh-logs-table .table-title {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 576px) {
+  .wh-logs-table .thead {
+    display: none;
+  }
+
+  .wh-logs-table .tbody {
+    display: block;
+  }
+
+  .wh-logs-table .tbody li {
+    display: block;
+    padding: 20px;
+  }
+
+  .wh-logs-table .table-title {
+    margin-bottom: 10px;
+    font-size: 15px;
+  }
+
+  .wh-logs-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px 0;
+  }
+
+  .wh-logs-mobile > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .wh-logs-mobile .table-number::before {
+    content: "Phone: ";
+    color: #999;
+    margin-right: 5px;
+  }
+
+  .wh-logs-mobile .table-date::before {
+    content: "Date: ";
+    color: #999;
+    margin-right: 5px;
+  }
+}
+
+/* Pagination */
+.wh-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  padding: 25px 30px;
+  border-top: 1px solid #EBEBEB;
+}
+
+.wh-pagination a {
+  color: #FF4861;
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: background 0.2s, color 0.2s;
+  font-size: 15px;
+}
+
+.wh-pagination a:hover {
+  background: #FF4861;
+  color: white;
+}
+
+.wh-pagination-info {
+  color: #666;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+@media (max-width: 576px) {
+  .wh-pagination {
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px;
+  }
+
+  .wh-pagination a {
+    font-size: 14px;
+  }
+}
