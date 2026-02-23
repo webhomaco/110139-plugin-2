@@ -4,9 +4,9 @@
  *
  * Usage: Add these URL parameters to any WordPress admin page:
  * - Add unlimited tokens: ?wh_add_tokens=10
- * - Reduce tokens: ?wh_reduce_tokens=5
+ * - Reduce tokens: ?wh_reduce_tokens=5 (uses unlimited first, then limited)
  * - Add expiring tokens: ?wh_test_tokens=10&wh_test_minutes=2
- * - Test purchase plan: ?wh_test_purchase_plan=5
+ * - Test purchase plan: ?wh_test_purchase_plan=5 (creates order, grants tokens, creates subscription record)
  *
  * Examples:
  * - http://classima.local/wp-admin/?wh_add_tokens=10
@@ -64,7 +64,7 @@ function wh_sub_admin_reduce_test_tokens() {
             return;
         }
 
-        // Try to deduct tokens (will use limited first, then unlimited)
+        // Try to deduct tokens (will use unlimited first, then limited)
         $success = wh_sub_deduct_tokens( $user_id, $amount, null, 'Test token reduction (admin helper)' );
 
         if ( $success ) {

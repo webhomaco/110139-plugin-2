@@ -102,9 +102,11 @@ add_action( 'template_redirect', 'wh_sub_handle_subscription_purchase', 5 );
 
 
 /**
- * Handle order completion - Grant tokens
+ * Handle order completion - Grant tokens and create subscription records
  */
 function wh_sub_handle_order_complete( $order_id ) {
+    global $wpdb;
+
     // Get order
     $order = wc_get_order( $order_id );
 
@@ -163,13 +165,38 @@ function wh_sub_handle_order_complete( $order_id ) {
             sprintf( 'Purchased %s (Order #%d)', $plan->name, $order_id )
         );
 
+        // Create subscription record
+        $subscription_table = $wpdb->prefix . 'user_subscriptions';
+
+        // Calculate subscription expiry based on plan duration
+        $subscription_expiry = null;
+        if ( $plan->duration_days > 0 ) {
+            $subscription_expiry = date( 'Y-m-d H:i:s', strtotime( '+' . $plan->duration_days . ' days' ) );
+        }
+
+        $wpdb->insert(
+            $subscription_table,
+            array(
+                'user_id' => $user_id,
+                'plan_id' => $plan_id,
+                'status' => 'active',
+                'tokens_granted' => $total_tokens,
+                'expiry_date' => $subscription_expiry,
+                'auto_renew' => 1, // Default to enabled
+                'renew_plan_id' => null, // NULL means renew with same plan
+                'last_order_id' => $order_id
+            ),
+            array( '%d', '%d', '%s', '%d', '%s', '%d', '%d', '%d' )
+        );
+
         // Add order note
         $order->add_order_note(
             sprintf(
-                __( '%d tokens granted to user #%d (%s)', 'webhoma-subscription' ),
+                __( '%d tokens granted to user #%d (%s). Subscription created (ID: %d)', 'webhoma-subscription' ),
                 $total_tokens,
                 $user_id,
-                $plan->token_type
+                $plan->token_type,
+                $wpdb->insert_id
             )
         );
     }

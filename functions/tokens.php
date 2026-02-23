@@ -124,22 +124,30 @@ function wh_sub_deduct_tokens( $user_id, $amount, $listing_id = null, $descripti
     $table_name = $wpdb->prefix . 'user_tokens';
     $remaining = $amount;
 
-    // First, use limited tokens if available and not expired
-    if ( $token_data->limited_tokens > 0 && $token_data->limited_expiry ) {
+    // First, use unlimited tokens
+    if ( $token_data->unlimited_tokens > 0 ) {
+        $deduct_unlimited = min( $token_data->unlimited_tokens, $remaining );
+        $token_data->unlimited_tokens -= $deduct_unlimited;
+        $remaining -= $deduct_unlimited;
+    }
+
+    // Then use limited tokens if available and not expired
+    if ( $remaining > 0 && $token_data->limited_tokens > 0 && $token_data->limited_expiry ) {
         $expiry = strtotime( $token_data->limited_expiry );
         if ( $expiry > time() ) {
-            $deduct_limited = min( $token_data->limited_tokens, $remaining );
-            $token_data->limited_tokens -= $deduct_limited;
-            $remaining -= $deduct_limited;
+            if ( $token_data->limited_tokens < $remaining ) {
+                return false; // Not enough tokens
+            }
+            $token_data->limited_tokens -= $remaining;
+            $remaining = 0;
+        } else {
+            return false; // Limited tokens expired, not enough tokens
         }
     }
 
-    // Then use unlimited tokens
+    // Check if we still need tokens
     if ( $remaining > 0 ) {
-        if ( $token_data->unlimited_tokens < $remaining ) {
-            return false; // Not enough tokens
-        }
-        $token_data->unlimited_tokens -= $remaining;
+        return false; // Not enough tokens
     }
 
     // Update database
