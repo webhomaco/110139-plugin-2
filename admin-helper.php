@@ -110,12 +110,39 @@ function wh_sub_admin_add_expiring_tokens() {
 }
 
 function wh_sub_admin_test_purchase_plan() {
-    if ( ! isset( $_GET['wh_test_purchase_plan'] ) || ! current_user_can( 'manage_options' ) ) {
+    if ( ! isset( $_GET['wh_test_purchase_plan'] ) ) {
+        return;
+    }
+
+    if ( ! current_user_can( 'manage_options' ) ) {
+        add_action( 'admin_notices', function() {
+            echo '<div class="notice notice-error is-dismissible">';
+            echo '<p><strong>Error!</strong> You must be an administrator to use this function.</p>';
+            echo '</div>';
+        });
         return;
     }
 
     $plan_id = absint( $_GET['wh_test_purchase_plan'] );
     $user_id = get_current_user_id();
+
+    if ( $plan_id <= 0 ) {
+        add_action( 'admin_notices', function() use ( $plan_id ) {
+            echo '<div class="notice notice-error is-dismissible">';
+            echo '<p><strong>Error!</strong> Invalid plan ID: ' . esc_html( $plan_id ) . '</p>';
+            echo '</div>';
+        });
+        return;
+    }
+
+    if ( $user_id <= 0 ) {
+        add_action( 'admin_notices', function() {
+            echo '<div class="notice notice-error is-dismissible">';
+            echo '<p><strong>Error!</strong> You must be logged in.</p>';
+            echo '</div>';
+        });
+        return;
+    }
 
     if ( $plan_id > 0 && $user_id > 0 ) {
         // Get plan details

@@ -39,6 +39,7 @@ require_once WH_SUB_DIR . 'functions/phone-reveal.php';
 require_once WH_SUB_DIR . 'functions/woocommerce.php';
 require_once WH_SUB_DIR . 'ajax/barter-ajax.php';
 require_once WH_SUB_DIR . 'ajax/phone-ajax.php';
+require_once WH_SUB_DIR . 'ajax/subscription-ajax.php';
 
 // Include admin files
 if ( is_admin() ) {
@@ -248,6 +249,19 @@ function wh_sub_enqueue_assets() {
             array(),
             WH_SUB_VERSION
         );
+
+        wp_enqueue_script(
+            'wh-subscription-management-script',
+            WH_SUB_URL . 'assets/js/subscription-management.js',
+            array( 'jquery' ),
+            WH_SUB_VERSION,
+            true
+        );
+
+        wp_localize_script( 'wh-subscription-management-script', 'whSubscriptionManagement', array(
+            'ajax_url' => admin_url( 'admin-ajax.php' ),
+            'nonce' => wp_create_nonce( 'wh_sub_nonce' )
+        ));
     }
 
     // Enqueue My Account icon styles on RTCL account pages

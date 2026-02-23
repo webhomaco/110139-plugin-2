@@ -220,6 +220,30 @@ function wh_sub_get_time_remaining( $expiry_timestamp ) {
 }
 
 /**
+ * Get user's active subscriptions
+ */
+function wh_sub_get_user_subscriptions( $user_id, $status = 'active' ) {
+    global $wpdb;
+
+    $subscriptions_table = $wpdb->prefix . 'user_subscriptions';
+    $plans_table = $wpdb->prefix . 'subscription_plans';
+
+    $query = "SELECT s.*, p.name as plan_name, p.token_count, p.token_type, p.duration_days, p.price
+              FROM $subscriptions_table s
+              LEFT JOIN $plans_table p ON s.plan_id = p.id
+              WHERE s.user_id = %d";
+
+    if ( $status ) {
+        $query .= " AND s.status = %s";
+        $results = $wpdb->get_results( $wpdb->prepare( $query . " ORDER BY s.expires_at DESC", $user_id, $status ) );
+    } else {
+        $results = $wpdb->get_results( $wpdb->prepare( $query . " ORDER BY s.expires_at DESC", $user_id ) );
+    }
+
+    return $results;
+}
+
+/**
  * Get user dashboard page content
  */
 function wh_sub_dashboard_content() {
@@ -284,6 +308,98 @@ function wh_sub_dashboard_content() {
                             </small>
                         </div>
                     <?php endif; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+
+        <?php
+        // Get user's active subscriptions
+        $subscriptions = wh_sub_get_user_subscriptions( $user_id, 'active' );
+        $all_plans = wh_sub_get_all_plans( 'active' ); // For renewal plan selection
+        ?>
+
+        <div class="wh-subscription-management">
+            <h3><?php esc_html_e( 'Active Subscriptions', 'webhoma-subscription' ); ?></h3>
+
+            <?php if ( ! empty( $subscriptions ) ) : ?>
+
+            <?php foreach ( $subscriptions as $subscription ) :
+                $is_expired = $subscription->expires_at && strtotime( $subscription->expires_at ) < time();
+                $time_remaining = $subscription->expires_at ? wh_sub_get_time_remaining( strtotime( $subscription->expires_at ) ) : __( 'Never', 'webhoma-subscription' );
+            ?>
+            <div class="wh-subscription-card" data-subscription-id="<?php echo esc_attr( $subscription->id ); ?>">
+                <div class="wh-subscription-header">
+                    <h4><?php echo esc_html( $subscription->plan_name ); ?></h4>
+                    <span class="wh-subscription-status <?php echo $is_expired ? 'expired' : 'active'; ?>">
+                        <?php echo $is_expired ? esc_html__( 'Expired', 'webhoma-subscription' ) : esc_html__( 'Active', 'webhoma-subscription' ); ?>
+                    </span>
+                </div>
+
+                <div class="wh-subscription-details">
+                    <div class="wh-subscription-detail">
+                        <span class="wh-detail-label"><?php esc_html_e( 'Tokens:', 'webhoma-subscription' ); ?></span>
+                        <span class="wh-detail-value"><?php echo esc_html( $subscription->token_count ); ?> <?php echo esc_html( ucfirst( $subscription->token_type ) ); ?></span>
+                    </div>
+                    <div class="wh-subscription-detail">
+                        <span class="wh-detail-label"><?php esc_html_e( 'Expiry:', 'webhoma-subscription' ); ?></span>
+                        <span class="wh-detail-value <?php echo $is_expired ? 'expired' : ''; ?>">
+                            <?php echo esc_html( $time_remaining ); ?>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="wh-subscription-controls">
+                    <!-- Auto-Renewal Toggle -->
+                    <div class="wh-control-group">
+                        <label class="wh-toggle-label">
+                            <input type="checkbox"
+                                   class="wh-auto-renew-toggle"
+                                   data-subscription-id="<?php echo esc_attr( $subscription->id ); ?>"
+                                   <?php checked( $subscription->auto_renew, 1 ); ?>>
+                            <span class="wh-toggle-switch"></span>
+                            <span class="wh-toggle-text"><?php esc_html_e( 'Auto-Renewal', 'webhoma-subscription' ); ?></span>
+                        </label>
+                    </div>
+
+                    <?php if ( $subscription->auto_renew ) : ?>
+                    <!-- Renewal Plan Selection -->
+                    <div class="wh-control-group">
+                        <label><?php esc_html_e( 'Renew with:', 'webhoma-subscription' ); ?></label>
+                        <select class="wh-renewal-plan-select" data-subscription-id="<?php echo esc_attr( $subscription->id ); ?>">
+                            <option value="" <?php selected( $subscription->renewal_plan_id, null ); ?>>
+                                <?php echo esc_html( sprintf( __( 'Same Plan (%s)', 'webhoma-subscription' ), $subscription->plan_name ) ); ?>
+                            </option>
+                            <?php foreach ( $all_plans as $plan ) :
+                                if ( $plan->id != $subscription->plan_id ) : ?>
+                                    <option value="<?php echo esc_attr( $plan->id ); ?>" <?php selected( $subscription->renewal_plan_id, $plan->id ); ?>>
+                                        <?php echo esc_html( sprintf( '%s (%d tokens)', $plan->name, $plan->token_count ) ); ?>
+                                    </option>
+                                <?php endif;
+                            endforeach; ?>
+                        </select>
+                    </div>
+                    <?php endif; ?>
+
+                    <!-- Cancel Subscription Button -->
+                    <button class="wh-btn wh-btn-cancel" data-subscription-id="<?php echo esc_attr( $subscription->id ); ?>">
+                        <?php esc_html_e( 'Cancel Subscription', 'webhoma-subscription' ); ?>
+                    </button>
+                </div>
+
+                <div class="wh-subscription-message" style="display: none;"></div>
+            </div>
+            <?php endforeach; ?>
+
+            <?php else : ?>
+                <div class="wh-no-subscriptions">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 8v4m0 4h.01"/>
+                    </svg>
+                    <p><?php esc_html_e( 'You currently don\'t have any active subscriptions.', 'webhoma-subscription' ); ?></p>
+                    <a href="<?php echo esc_url( home_url( '/subscription-plans' ) ); ?>" class="wh-btn-view-plans">
+                        <?php esc_html_e( 'View Available Plans', 'webhoma-subscription' ); ?>
+                    </a>
                 </div>
             <?php endif; ?>
         </div>

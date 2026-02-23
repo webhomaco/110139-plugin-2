@@ -174,31 +174,44 @@ function wh_sub_handle_order_complete( $order_id ) {
             $subscription_expiry = date( 'Y-m-d H:i:s', strtotime( '+' . $plan->duration_days . ' days' ) );
         }
 
-        $wpdb->insert(
+        $subscription_inserted = $wpdb->insert(
             $subscription_table,
             array(
                 'user_id' => $user_id,
                 'plan_id' => $plan_id,
                 'status' => 'active',
-                'tokens_granted' => $total_tokens,
-                'expiry_date' => $subscription_expiry,
+                'started_at' => current_time( 'mysql' ),
+                'expires_at' => $subscription_expiry,
                 'auto_renew' => 1, // Default to enabled
-                'renew_plan_id' => null, // NULL means renew with same plan
-                'last_order_id' => $order_id
+                'renewal_plan_id' => null, // NULL means renew with same plan
+                'wc_order_id' => $order_id
             ),
-            array( '%d', '%d', '%s', '%d', '%s', '%d', '%d', '%d' )
+            array( '%d', '%d', '%s', '%s', '%s', '%d', '%d', '%d' )
         );
 
         // Add order note
-        $order->add_order_note(
-            sprintf(
-                __( '%d tokens granted to user #%d (%s). Subscription created (ID: %d)', 'webhoma-subscription' ),
-                $total_tokens,
-                $user_id,
-                $plan->token_type,
-                $wpdb->insert_id
-            )
-        );
+        if ( $subscription_inserted ) {
+            $order->add_order_note(
+                sprintf(
+                    __( '%d tokens granted to user #%d (%s). Subscription created (ID: %d)', 'webhoma-subscription' ),
+                    $total_tokens,
+                    $user_id,
+                    $plan->token_type,
+                    $wpdb->insert_id
+                )
+            );
+        } else {
+            $order->add_order_note(
+                sprintf(
+                    __( '%d tokens granted to user #%d (%s). Subscription creation failed: %s', 'webhoma-subscription' ),
+                    $total_tokens,
+                    $user_id,
+                    $plan->token_type,
+                    $wpdb->last_error
+                )
+            );
+            error_log( 'WH Subscription Insert Error: ' . $wpdb->last_error );
+        }
     }
 
     // Mark as processed
